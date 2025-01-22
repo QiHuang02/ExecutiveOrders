@@ -1,0 +1,10 @@
+{
+  "type": "executiveorders:voidtouched",
+  "ingredient": {
+    "item": "minecraft:totem_of_undying"
+  },
+  "result": {
+    "count": 1,
+    "id": "executiveorders:warpedeffigy"
+  }
+}

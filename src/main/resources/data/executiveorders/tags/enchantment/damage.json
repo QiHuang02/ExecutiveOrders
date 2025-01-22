@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "executiveorders:precisestrike",
+      "required": false
+    }
+  ]
+}

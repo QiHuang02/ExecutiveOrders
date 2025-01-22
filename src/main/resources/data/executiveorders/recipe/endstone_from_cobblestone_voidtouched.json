@@ -1,0 +1,10 @@
+{
+  "type": "executiveorders:voidtouched",
+  "ingredient": {
+    "item": "minecraft:cobblestone"
+  },
+  "result": {
+    "count": 1,
+    "id":  "minecraft:end_stone"
+  }
+}

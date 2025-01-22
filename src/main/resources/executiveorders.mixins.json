@@ -1,0 +1,36 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.atired.executiveorders.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractBlockMixin",
+    "ItemStackMixin",
+    "LivingEntityMixin",
+    "PlayerEntityMixin",
+    "ProjectileEntityMixin",
+    "RangedWeaponItemMixin",
+    "TheRoofPlayerEntityMixin",
+    "deeprelated.DepthsCreeperMixin",
+    "deeprelated.DepthsLivingEntityMixin",
+    "deeprelated.DepthsMobEntityMixin",
+    "deeprelated.DepthsZombieMixin",
+    "deeprelated.HauntedItemStackMixin"
+  ],
+  "client": [
+    "BackGroundRendererMixin",
+    "ExecutiveCrutchGameRendererMixin",
+    "FogMixin",
+    "InGameHudMixin",
+    "LightmapTextureManagerMixin",
+    "LightTextureMixin",
+    "LivingEntityRendererMixin",
+    "PalePileDrawContextMixin",
+    "ProjectileEntityRendererMixin",
+    "ShaderProgramMixin",
+    "WorldRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

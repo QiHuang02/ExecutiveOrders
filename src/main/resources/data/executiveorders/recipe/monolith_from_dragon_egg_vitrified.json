@@ -1,0 +1,10 @@
+{
+  "type": "executiveorders:vitrified",
+  "ingredient": {
+    "item": "minecraft:dragon_egg"
+  },
+  "result": {
+    "count": 1,
+    "id": "executiveorders:monolith"
+  }
+}

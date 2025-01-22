@@ -1,0 +1,9 @@
+{
+  "parent": "executiveorders:block/monolith_base",
+  "textures": {
+    "sided": "executiveorders:block/monolith_sided",
+    "side": "executiveorders:block/monolith_side",
+    "top": "executiveorders:block/monolith_top",
+    "itself": "executiveorders:block/monolith"
+  }
+}

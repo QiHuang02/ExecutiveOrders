@@ -1,0 +1,10 @@
+{
+  "type": "executiveorders:voidtouched",
+  "ingredient": {
+    "tag": "minecraft:axes"
+  },
+  "result": {
+    "count": 1,
+    "id": "executiveorders:ripper_shark"
+  }
+}

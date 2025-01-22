@@ -1,0 +1,18 @@
+{
+  "item.executiveorders.digger_shark": "Spade-headed Fish",
+  "item.executiveorders.ripper_shark": "Sharp-headed Fish",
+  "item.executiveorders.sword_fish": "Spike-headed Fish",
+  "item.executiveorders.warpedeffigy": "Warped Effigy",
+  "item.executiveorders.pale_pile": "Condensed Ectoplasm",
+  "item.executiveorders.haunted_axe": "Skullcutter",
+  "block.executiveorders.monolith": "Monolith",
+  "entity.executiveorders.vitrified": "Vitrified",
+  "effect.executiveorders.phasing": "Phasing ",
+
+  "enchantment.executiveorders.arbalest": "Arbalest",
+  "enchantment.executiveorders.arbalest.desc": "Upon fully charging the bow, release a much stronger and heavier bolt",
+  "enchantment.executiveorders.execution": "Execution",
+  "enchantment.executiveorders.execution.desc": "Kills foes below 20% health with a small delay",
+  "enchantment.executiveorders.precisestrike": "Hollow Core",
+  "enchantment.executiveorders.precisestrike.desc": "Knockbacks foes based on your velocity. Foes struck with enough force become bouncy and damage enemies in their path"
+}

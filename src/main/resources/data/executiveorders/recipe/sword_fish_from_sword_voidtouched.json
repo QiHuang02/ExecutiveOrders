@@ -1,0 +1,10 @@
+{
+  "type": "executiveorders:voidtouched",
+  "ingredient": {
+    "tag": "minecraft:swords"
+  },
+  "result": {
+    "count": 1,
+    "id": "executiveorders:sword_fish"
+  }
+}

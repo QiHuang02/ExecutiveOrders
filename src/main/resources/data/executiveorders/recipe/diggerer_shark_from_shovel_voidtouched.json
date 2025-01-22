@@ -1,0 +1,10 @@
+{
+  "type": "executiveorders:voidtouched",
+  "ingredient": {
+    "tag": "minecraft:shovels"
+  },
+  "result": {
+    "count": 1,
+    "id": "executiveorders:digger_shark"
+  }
+}

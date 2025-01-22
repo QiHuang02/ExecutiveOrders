@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "executiveorders",
+  "version": "${version}",
+  "name": "ExecutiveOrders",
+  "description": "Some stuff ",
+  "authors": ["A tired guy"],
+  "contact": {
+    "repo": ""
+  },
+  "license": "MIT",
+  "icon": "assets/executiveorders/executive.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "net.atired.executiveorders.ExecutiveOrdersDataGenerator"
+    ],
+    "client": [
+      "net.atired.executiveorders.client.ExecutiveOrdersClient"
+    ],
+    "main": [
+      "net.atired.executiveorders.ExecutiveOrders"
+    ]
+  },
+  "mixins": [
+    "executiveorders.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "satin": "2.0.0",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

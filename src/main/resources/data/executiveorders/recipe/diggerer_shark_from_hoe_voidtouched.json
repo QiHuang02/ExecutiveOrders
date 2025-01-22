@@ -1,0 +1,10 @@
+{
+  "type": "executiveorders:voidtouched",
+  "ingredient": {
+    "tag": "minecraft:hoes"
+  },
+  "result": {
+    "count": 1,
+    "id": "executiveorders:digger_shark"
+  }
+}
