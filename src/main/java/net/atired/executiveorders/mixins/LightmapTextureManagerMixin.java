@@ -31,12 +31,15 @@ public class LightmapTextureManagerMixin {
     @ModifyReturnValue(method = "getBrightness(Lnet/minecraft/world/dimension/DimensionType;I)F",at = @At("RETURN"))
     private static float darknessEncroaching(float original, DimensionType type, int lightLevel){
         MinecraftClient client = MinecraftClient.getInstance();
-        if(client.player.getY()<=-30 && (client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD||client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD_CAVES)&&!client.player.hasStatusEffect(StatusEffects.NIGHT_VISION))
+        if(client.player.getY()<=-54 && (client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD||client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD_CAVES)&&!client.player.hasStatusEffect(StatusEffects.NIGHT_VISION))
         {
 
-            float val = Math.clamp((float) ((client.player.getY()+56f)/26f),0.1f,1f);
+            float val = Math.clamp((float) ((client.player.getY()+56f)/2f),0.1f,1f);
             float copy = (original/1.1f-0.02f);
             return original*val+copy*(1-val);
+        }
+        if(client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_NETHER && client.player.getPos().y>123){
+            return original*0.85f-0.02f;
         }
         return original;
     }
@@ -45,9 +48,9 @@ public class LightmapTextureManagerMixin {
         Color yeah = new Color(args.get(2));
         MinecraftClient client = MinecraftClient.getInstance();
 
-        if( client.player.getY()<=-30 && (client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD||client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD_CAVES))
+        if( client.player.getY()<=-53 && (client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD||client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD_CAVES))
         {
-            float val = Math.clamp((float) ((client.player.getY()+35)/5),0.4f,1f);
+            float val = Math.clamp((float) ((client.player.getY()+55)/2),0.4f,1f);
             args.set(2,0xFF000000| (int)(yeah.getBlue()*(1-val)+yeah.getRed()*val) << 16 | (int)((yeah.getGreen())) << 8 | (int)(yeah.getBlue()*val+yeah.getRed()*(1-val)));
 
         }

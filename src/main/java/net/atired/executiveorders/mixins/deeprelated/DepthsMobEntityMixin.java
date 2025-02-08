@@ -3,10 +3,7 @@ package net.atired.executiveorders.mixins.deeprelated;
 import net.atired.executiveorders.accessors.DepthsLivingEntityAccessor;
 import net.atired.executiveorders.init.ItemsInit;
 import net.atired.executiveorders.items.PalePileItem;
-import net.minecraft.entity.EntityData;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -70,7 +67,9 @@ public abstract class DepthsMobEntityMixin extends LivingEntity implements Depth
             if(!itemStacks.isEmpty()&&itemStacks.getFirst().getItem()!= Items.AIR){
                 ItemStack paleOoze = new ItemStack(ItemsInit.PALE_PILE);
                 ((PalePileItem)ItemsInit.PALE_PILE).addItems(paleOoze,itemStacks);
-                this.dropStack(paleOoze).setNoGravity(true);
+                ItemEntity itemEntity = this.dropStack(paleOoze);
+                itemEntity.setNoGravity(true);
+                itemEntity.setVelocity(itemEntity.getVelocity().multiply(0.5));
             }
 
 
@@ -95,7 +94,7 @@ public abstract class DepthsMobEntityMixin extends LivingEntity implements Depth
 
     @Inject(method = "initialize(Lnet/minecraft/world/ServerWorldAccess;Lnet/minecraft/world/LocalDifficulty;Lnet/minecraft/entity/SpawnReason;Lnet/minecraft/entity/EntityData;)Lnet/minecraft/entity/EntityData;",at = @At("TAIL"))
     public void deepFinalizeSpawning(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, EntityData entityData, CallbackInfoReturnable<EntityData> cir){
-        if(getPos().y<-30 && spawnReason != SpawnReason.REINFORCEMENT){
+        if(getPos().y<-55 && spawnReason != SpawnReason.REINFORCEMENT){
             if(((LivingEntity)this) instanceof HostileEntity)
             {
                 this.executiveOrders$setRadiant(true);

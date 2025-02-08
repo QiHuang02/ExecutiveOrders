@@ -1,5 +1,5 @@
 #version 150
-
+uniform sampler2D DepthSampler;
 uniform sampler2D DiffuseSampler;
 
 in vec2 texCoord;
@@ -8,10 +8,15 @@ in vec2 oneTexel;
 uniform vec2 InSize;
 uniform float GameTime;
 uniform float Burn;
+uniform float _FOV;
 
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
 vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 vec3 fade(vec3 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
+float near = 0.1;
+float far = 100.0;
+
+
 
 float cnoise(vec3 P){
     vec3 Pi0 = floor(P); // Integer part for indexing
@@ -95,25 +100,33 @@ vec3 hsv2rgb(vec3 c)
     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0f - 1.0f;
+    return (near * far) / (far + near - z * (far - near));
+}
 out vec4 fragColor;
 
 void main() {
-    vec2 mosaicInSize = InSize / 8;
+    float depth = LinearizeDepth(texture(DepthSampler, texCoord).r);
+    float distance = length(vec3(1., (2.*texCoord - 1.) * vec2(InSize.x/InSize.y,1.) * tan(radians(_FOV / 2.))) * depth);
+    vec2 mosaicInSize = InSize *20/distance;
+    float origDist = clamp(distance,0,200);
+    if(mosaicInSize.length()>InSize.length()){
+        mosaicInSize = InSize;
+    }
+    distance = max(distance/60,1);
     vec4 baseCopy = texture(DiffuseSampler,texCoord);
-    vec2 texCopy = fract(texCoord*mosaicInSize)/mosaicInSize;
-    texCopy = texCoord-texCopy;
-    float texY = abs(texCopy.y-0.5)*2;
-    float noiseval = abs(cnoise(vec3(texCopy.x*8,texY*5+GameTime*2000,GameTime*24)+1)*pow(texY,1.2)/2f)+(texY)/1.5f+sin(texCopy.x*2+GameTime*2000)/20f-0.1f+pow(abs(texCopy.x-0.5)*2,2)/3f;
-    noiseval*=pow(Burn,1.2)*2.5+0.2;
-    vec3 hsvCopy = rgb2hsv(baseCopy.xyz);
-    hsvCopy.y*=(1-Burn*clamp(noiseval*2,0,1));
-    baseCopy.xyz = hsv2rgb(hsvCopy);
-    if(noiseval>.7f){
-        float frNoise = noiseval-fract(noiseval*4)/4;
-        baseCopy = vec4(1,1,1,1)*frNoise+baseCopy*(1-frNoise);
-        fragColor =baseCopy;
-    }
-    else{
-        fragColor =baseCopy;
-    }
+    vec2 texCopy = texCoord - fract(texCoord*mosaicInSize)/mosaicInSize;
+
+    vec4 col = texture(DiffuseSampler,vec2(texCopy.x+(cos(texCoord.x*200)+sin(texCoord.y*50))*pow(origDist/2,1.5)/48000,texCopy.y+(sin(texCoord.x*50)+cos(texCoord.y*200))*pow(origDist/2,1.5)/48000));
+    vec3 hueCol = rgb2hsv(col.xyz);
+    hueCol.x = 0.88*clamp(distance/128,0,1)+hueCol.x*(1-clamp(distance/128,0,1));
+    hueCol.z *= 1-pow(clamp(origDist/1000,0,1),0.8);
+    col.xyz = hsv2rgb(hueCol);
+    col.a = max(1-distance/32,0);
+    col*=clamp(pow((1-abs(texCopy.y-0.5)*2)*(1-abs(texCopy.x-0.5)*2),0.5)+0.3+(-cos(texCoord.x)-sin(texCoord.y))/10,0,1);
+    fragColor = col/distance;
+
+
 }

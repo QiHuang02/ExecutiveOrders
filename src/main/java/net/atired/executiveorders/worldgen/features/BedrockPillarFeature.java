@@ -27,12 +27,9 @@ public class BedrockPillarFeature
         StructureWorldAccess structureWorldAccess = context.getWorld();
         Random random = context.getRandom();
         BlockPos.Mutable blockPos1 = blockPos.mutableCopy();
-        float randumb = EOgetDatNoise.sampleNoise3D(blockPos.getX(),blockPos.getY(),blockPos.getZ(),250f);
-        if(randumb>0.90f && (blockPos.getX()+blockPos.getZ())%2 == 0){
-            for (int i = 0; i < 16*((randumb-0.9f)*10); i++){
-                if( structureWorldAccess.isAir(blockPos1)){
-                    i+=5;
-                }
+        float randumb = EOgetDatNoise.sampleNoise3D(blockPos.getX(),blockPos.getY(),blockPos.getZ(),300f);
+        if(randumb>0.50f && (blockPos.getX()%3 == 0)&&(blockPos.getZ()%3 == 0)){
+            for (int i = 0; i < 16*((randumb-0.5f)*10); i++){
                 structureWorldAccess.setBlockState(blockPos1, Blocks.BEDROCK.getDefaultState(), Block.NOTIFY_LISTENERS);
                 blockPos1 = blockPos1.move(Direction.UP);
             }

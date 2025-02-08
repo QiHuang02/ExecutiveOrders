@@ -22,26 +22,38 @@ import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.CoreShaderRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
+import org.ladysnake.satin.api.event.EntitiesPreRenderCallback;
+import org.ladysnake.satin.api.event.PostWorldRenderCallback;
 import org.ladysnake.satin.api.event.ShaderEffectRenderCallback;
+import org.ladysnake.satin.api.experimental.ReadableDepthFramebuffer;
+import org.ladysnake.satin.api.managed.ManagedCoreShader;
 import org.ladysnake.satin.api.managed.ManagedShaderEffect;
 import org.ladysnake.satin.api.managed.ShaderEffectManager;
+import org.ladysnake.satin.api.managed.uniform.SamplerUniformV2;
 import org.ladysnake.satin.api.managed.uniform.Uniform1f;
+import org.ladysnake.satin.api.managed.uniform.Uniform2f;
 
 import java.awt.*;
 
 public class ExecutiveOrdersClient implements ClientModInitializer {
     private static final ManagedShaderEffect PALE_PROGRAM;
+    private static final ManagedShaderEffect ROOF_PROGRAM;
     private static final ManagedShaderEffect AFTERBURN_PROGRAM;
     private static final Uniform1f paleFadeIn;
+    public static final Uniform2f paleCamRot;
+    public static final SamplerUniformV2 paleSampler;
+    public static final SamplerUniformV2 paleSampler2;
     private static final Uniform1f paleTime;
     private static final Uniform1f burnTime;
     private static final Uniform1f burnFadeIn;
     @Override
     public void onInitializeClient() {
+
         CoreShaderRegistrationCallback.EVENT.register(new CoreShaderRegistrationEvent());
         BlockRenderLayerMap.INSTANCE.putBlock(BlocksInit.MONOLITH, RenderLayer.getCutout());
         BlockEntityRendererRegistry.register(BlockEntityInit.MONOLITH_ENTITY_TYPE, MonolithBlockEntityRenderer::new);
@@ -109,6 +121,16 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(new HollowCoreRenderEvent());
         HudRenderCallback.EVENT.register(new ThunderedRenderEvent());
         HudRenderCallback.EVENT.register(new MarkiplierEvent());
+
+        PostWorldRenderCallback.EVENT.register((camera, tickDelta)->{
+        });
+        EntitiesPreRenderCallback.EVENT.register((camera, frustum, tickDelta) -> {
+
+            PaleUniformsEvent.getFramebuffer().clear(true);
+            PaleUniformsEvent.getFramebuffer().copyDepthFrom(MinecraftClient.getInstance().getFramebuffer());
+            if(MinecraftClient.getInstance().world != null)
+                uniformSTime.set((MinecraftClient.getInstance().world.getTime() + tickDelta) * 0.05f);
+        });
         ShaderEffectRenderCallback.EVENT.register(new PaleUniformsEvent());
     }
     public static void setPaleFadeIn(float value){
@@ -129,11 +151,25 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
     public static void renderBurnProgram(float ticks){
         AFTERBURN_PROGRAM.render(ticks);
     }
+    public static void renderRoofProgram(float ticks){
+        ROOF_PROGRAM.render(ticks);
+    }
+    public static final ManagedCoreShader VITRIC = ShaderEffectManager.getInstance().manageCoreShader(ExecutiveOrders.id("vitric"));
+    private static final Uniform1f uniformSTime = VITRIC.findUniform1f("STime");
+
     static {
-        PALE_PROGRAM = ShaderEffectManager.getInstance().manage(ExecutiveOrders.id("shaders/post/pale.json"));
+        PALE_PROGRAM = ShaderEffectManager.getInstance().manage(ExecutiveOrders.id("shaders/post/pale.json"), shader ->{
+            shader.setSamplerUniform("DepthSampler", ((ReadableDepthFramebuffer)MinecraftClient.getInstance().getFramebuffer()).getStillDepthMap());
+        });
+        ROOF_PROGRAM = ShaderEffectManager.getInstance().manage(ExecutiveOrders.id("shaders/post/roof.json"), shader ->{
+            shader.setSamplerUniform("DepthSampler", ((ReadableDepthFramebuffer)MinecraftClient.getInstance().getFramebuffer()).getStillDepthMap());
+        });
         AFTERBURN_PROGRAM = ShaderEffectManager.getInstance().manage(ExecutiveOrders.id("shaders/post/afterburn.json"));
+        paleSampler = PALE_PROGRAM.findSampler("SculkSampler");
+        paleSampler2 = PALE_PROGRAM.findSampler("ActualSculkSampler");
         paleFadeIn = PALE_PROGRAM.findUniform1f("Fade");
         paleTime = PALE_PROGRAM.findUniform1f("GameTime");
+        paleCamRot = PALE_PROGRAM.findUniform2f("CamRot");
         burnTime = AFTERBURN_PROGRAM.findUniform1f("GameTime");
         burnFadeIn = AFTERBURN_PROGRAM.findUniform1f("Burn");
         paleFadeIn.set(0);

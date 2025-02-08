@@ -48,22 +48,7 @@ public class VitrifiedRenderer extends SkeletonEntityRenderer<VitrifiedEntity> {
             return 0;
     }
 
-    @Nullable
-    @Override
-    protected RenderLayer getRenderLayer(VitrifiedEntity entity, boolean showBody, boolean translucent, boolean showOutline) {
-        Identifier identifier = this.getTexture(entity);
-        if (translucent) {
-            return RenderLayer.getItemEntityTranslucentCull(identifier);
-        } else if (showBody) {
-            if(entity.getTargetId() == -1)
-            {
-                return  RenderLayer.getEntityTranslucent(identifier);
-            }
-            return this.model.getLayer(identifier);
-        } else {
-            return showOutline ? RenderLayer.getOutline(identifier) : null;
-        }
-    }
+
     @Override
     public void render(VitrifiedEntity livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
         if(livingEntity.getTargetId() == -1)

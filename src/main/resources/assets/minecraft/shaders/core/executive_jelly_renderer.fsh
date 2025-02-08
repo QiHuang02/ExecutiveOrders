@@ -44,7 +44,7 @@ void main() {
     color.b = clamp(color.b,0,1);
     color.rgb = mix(overlayColor.rgb, color.rgb, overlayColor.a);
     float yeah = sin(gl_FragCoord.y /32*pow(vertexDistance,0.5) + GameTime * 3.1415926535 * 1024.0 + cos(gl_FragCoord.x /16+ GameTime * 2048.0)/2);
-    color *= lightMapColor;
+
 
 
 

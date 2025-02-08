@@ -1,17 +1,18 @@
 package net.atired.executiveorders.mixins;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.atired.executiveorders.ExecutiveOrders;
+import net.atired.executiveorders.accessors.DepthsLivingEntityAccessor;
+import net.atired.executiveorders.client.event.PaleUniformsEvent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
@@ -24,9 +25,13 @@ import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
 @Mixin(WorldRenderer.class)
@@ -38,6 +43,13 @@ public abstract class WorldRendererMixin {
 
     @Shadow public abstract void captureFrustum();
 
+    @Shadow protected abstract void renderEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers);
+
+    @Shadow protected abstract boolean canDrawEntityOutlines();
+
+    @Shadow @Final private BufferBuilderStorage bufferBuilders;
+    @Unique
+    private final List<Entity> entityList = new ArrayList<Entity>();
     private static final Identifier NETHER_SKY = ExecutiveOrders.id("textures/misc/monolith.png");
     private static final Identifier NETHER_MAW = ExecutiveOrders.id("textures/misc/maw1.png");
     private static final Identifier NETHER_MAW2 = ExecutiveOrders.id("textures/misc/maw2.png");
@@ -127,39 +139,81 @@ public abstract class WorldRendererMixin {
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees((client.world.getTime()*7/(i+3f)+i*60)*mult));
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0f));
             BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-            bufferBuilder.vertex(matrix4f, -30.0f-i*16f, -24.0f+i, -30.0f-i*16).texture(0.0f, 0.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6-15,180,180,180));
-            bufferBuilder.vertex(matrix4f, -30.0f-i*16f, -24.0f+i, 30.0f+i*16).texture(0.0f, 1.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6-15,180,180,180));
-            bufferBuilder.vertex(matrix4f, 30.0f+i*16f, -24.0f+i, 30.0f+i*16).texture(1.0f, 1.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6-15,180,180,180));
-            bufferBuilder.vertex(matrix4f, 30.0f+i*16f, -24.0f+i, -30.0f-i*16).texture(1.0f, 0.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6-15,180,180,180));
+            bufferBuilder.vertex(matrix4f, -5.0f-i*2f, -6.0f+i/4f, -5.0f-i*2f).texture(0.0f, 0.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
+            bufferBuilder.vertex(matrix4f, -5.0f-i*2f, -6.0f+i/4f, 5.0f+i*2f).texture(0.0f, 1.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
+            bufferBuilder.vertex(matrix4f, 5.0f+i*2f, -6.0f+i/4f, 5.0f+i*2f).texture(1.0f, 1.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
+            bufferBuilder.vertex(matrix4f, 5.0f+i*2f, -6.0f+i/4f, -5.0f-i*2f).texture(1.0f, 0.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
             BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
             matrices.pop();
         }
+
         RenderSystem.depthMask(true);
         RenderSystem.disableBlend();
+    }
+    @Inject(method = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V", at = @At("HEAD"),cancellable = true)
+    private void depthEnemies(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci){
+        if(!this.entityList.contains(entity) && entity instanceof DepthsLivingEntityAccessor accessor && accessor.executiveOrders$isRadiant()){
+            this.entityList.add((Entity)entity);
+            ci.cancel();
+        }
+        else if(this.entityList.contains((Entity)entity)){
+
+
+        }
+    }
+    @Inject(method = "render",at= @At(value = "INVOKE", target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;drawCurrentLayer()V",ordinal = 0,shift = At.Shift.BEFORE))
+    private void depthMainEnemies(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci){
+        Vec3d vec3d = camera.getPos();
+        double d = vec3d.getX();
+        double e = vec3d.getY();
+        double g = vec3d.getZ();
+        boolean bl3 = false;
+        VertexConsumerProvider.Immediate immediate = this.bufferBuilders.getEntityVertexConsumers();
+        MatrixStack matrixStack = new MatrixStack();
+        float delta = tickCounter.getTickDelta(false);
+        PaleUniformsEvent.getFramebuffer().beginWrite(true);
+        if(!this.entityList.isEmpty())
+        {
+            for(Entity entity : this.entityList){
+                VertexConsumerProvider vertexConsumerProvider;
+                if (this.canDrawEntityOutlines() && this.client.hasOutline(entity)) {
+                    bl3 = true;
+                    OutlineVertexConsumerProvider outlineVertexConsumerProvider = this.bufferBuilders.getOutlineVertexConsumers();
+                    vertexConsumerProvider = outlineVertexConsumerProvider;
+                    int i = entity.getTeamColorValue();
+                    outlineVertexConsumerProvider.setColor(ColorHelper.Argb.getRed(i), ColorHelper.Argb.getGreen(i), ColorHelper.Argb.getBlue(i), 255);
+                } else {
+                    vertexConsumerProvider = immediate;
+                }
+                renderEntity(entity,d,e,g,delta,matrixStack,vertexConsumerProvider);
+            }
+            this.entityList.clear();
+        }
+        PaleUniformsEvent.getFramebuffer().endWrite();
+
     }
     @Inject(method = "renderWeather", at = @At("HEAD"))
     private void notRenderEndAtTheEmdSky(LightmapTextureManager manager, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci){
         if(MinecraftClient.getInstance().player.getPos().length()>9000&&MinecraftClient.getInstance().player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END)
         {
-
                 manager.enable();
                 MatrixStack matrices = new MatrixStack();
                 Vector3f color = new Vector3f(1f,1f,1f);
                 float pos = (float) (cameraY-62.5);
-                float alpha = (float) Math.clamp((MinecraftClient.getInstance().player.getPos().length()-9000f)/1000f,0f,1f)/2f;
+                float alpha = (float) Math.clamp((MinecraftClient.getInstance().player.getPos().length()-9000f)/100f,0f,1f)/2f;
                 RenderSystem.depthMask(true);
                 RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
                 RenderSystem.setShaderTexture(0, FOGGIEST_SKY);
-                RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE_MINUS_DST_ALPHA, GlStateManager.DstFactor.ZERO);
+                RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.DST_ALPHA, GlStateManager.SrcFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_DST_ALPHA);
                 RenderSystem.enableBlend();
                 RenderSystem.enableDepthTest();
                 Tessellator tessellator = Tessellator.getInstance();
-                for (int i = 0; i <6; ++i) {
+                for (int i = 0; i <1; ++i) {
                     matrices.push();
-                    float timex = (float) Math.sin((double) MinecraftClient.getInstance().world.getTimeOfDay()/300+i*4)*12;
-                    float timez = (float) Math.cos((double) MinecraftClient.getInstance().world.getTimeOfDay()/300+i*4)*12;
+                    float timex = (float) Math.sin((double) MinecraftClient.getInstance().world.getTimeOfDay()/100+i*4)*12;
+                    float timez = (float) Math.cos((double) MinecraftClient.getInstance().world.getTimeOfDay()/100+i*4)*12;
                     float mult = -1;
-                    if(i>2){
+                    if(i>0){
                         mult = 1;
                         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0f));
                     }
@@ -167,9 +221,9 @@ public abstract class WorldRendererMixin {
                     BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
                     double v = timez - (cameraZ % 216)*-1*mult;
                     bufferBuilder.vertex(matrix4f,(float) (-540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v-540.0f).texture(0.0f, 0.0f).color(color.x,color.y,color.z,alpha);
-                    bufferBuilder.vertex(matrix4f,(float) (-540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v+540.0f).texture(0.0f, 5.0f).color(color.x,color.y,color.z,alpha);
-                    bufferBuilder.vertex(matrix4f,(float) (540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v+540.0f).texture(5.0f, 5.0f).color(color.x,color.y,color.z,alpha);
-                    bufferBuilder.vertex(matrix4f,(float) (540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v-540.0f).texture(5.0f, 0.0f).color(color.x,color.y,color.z,alpha);
+                    bufferBuilder.vertex(matrix4f,(float) (-540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v+540.0f).texture(0.0f, 10.0f).color(color.x,color.y,color.z,alpha);
+                    bufferBuilder.vertex(matrix4f,(float) (540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v+540.0f).texture(10.0f, 10.0f).color(color.x,color.y,color.z,alpha);
+                    bufferBuilder.vertex(matrix4f,(float) (540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v-540.0f).texture(10.0f, 0.0f).color(color.x,color.y,color.z,alpha);
 
                     BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
                     matrices.pop();
@@ -224,41 +278,45 @@ public abstract class WorldRendererMixin {
             }
             RenderSystem.depthMask(true);
             RenderSystem.disableBlend();
-            RenderSystem.enableBlend();
-            RenderSystem.depthMask(false);
-            RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-            RenderSystem.setShaderTexture(0, FOGGIER_SKY);
-            tessellator = Tessellator.getInstance();
-            for (int i = 0; i < 6; ++i) {
-                matrices.push();
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(MinecraftClient.getInstance().world.getTimeOfDay()/8f));
-                if (i == 1) {
-                    matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90.0f));
-                }
-                if (i == 2) {
-                    matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90.0f));
-                }
-                if (i == 3) {
-                    matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0f));
-                }
-                if (i == 4) {
-                    matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(90.0f));
-                }
-                if (i == 5) {
-                    matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-90.0f));
-                }
-                Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-                BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-                bufferBuilder.vertex(matrix4f, -90.0f, -90.0f, -90.0f).texture(0.0f, 0.0f).color(color.x,color.y,color.z, alpha/2f);
-                bufferBuilder.vertex(matrix4f, -90.0f, -90.0f, 90.0f).texture(0.0f, 2.0f).color(color.x,color.y,color.z, alpha/2f);
-                bufferBuilder.vertex(matrix4f, 90.0f, -90.0f, 90.0f).texture(2.0f, 2.0f).color(color.x,color.y,color.z, alpha/2f);
-                bufferBuilder.vertex(matrix4f, 90.0f, -90.0f, -90.0f).texture(2.0f, 0.0f).color(color.x,color.y,color.z, alpha/2f);
-                BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
-                matrices.pop();
-            }
-            RenderSystem.depthMask(true);
-            RenderSystem.disableBlend();
+//            RenderSystem.enableBlend();
+//            RenderSystem.depthMask(false);
+//            RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+//            RenderSystem.setShaderTexture(0, FOGGIER_SKY);
+//            tessellator = Tessellator.getInstance();
+//            for (int i = 0; i < 6; ++i) {
+//                matrices.push();
+//                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(MinecraftClient.getInstance().world.getTimeOfDay()/8f));
+//                if (i == 1) {
+//                    matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90.0f));
+//                }
+//                if (i == 2) {
+//                    matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90.0f));
+//                }
+//                if (i == 3) {
+//                    matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0f));
+//                }
+//                if (i == 4) {
+//                    matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(90.0f));
+//                }
+//                if (i == 5) {
+//                    matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-90.0f));
+//                }
+//                Matrix4f matrix4f = matrices.peek().getPositionMatrix();
+//                BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+//                bufferBuilder.vertex(matrix4f, -90.0f, -90.0f, -90.0f).texture(0.0f, 0.0f).color(color.x,color.y,color.z, alpha/2f);
+//                bufferBuilder.vertex(matrix4f, -90.0f, -90.0f, 90.0f).texture(0.0f, 2.0f).color(color.x,color.y,color.z, alpha/2f);
+//                bufferBuilder.vertex(matrix4f, 90.0f, -90.0f, 90.0f).texture(2.0f, 2.0f).color(color.x,color.y,color.z, alpha/2f);
+//                bufferBuilder.vertex(matrix4f, 90.0f, -90.0f, -90.0f).texture(2.0f, 0.0f).color(color.x,color.y,color.z, alpha/2f);
+//                BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+//                matrices.pop();
+//            }
+//            RenderSystem.depthMask(true);
+//            RenderSystem.disableBlend();
         }
+
+    }
+    @Inject(method = "render",at=@At("TAIL"))
+    private void idk(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci){
 
     }
 }

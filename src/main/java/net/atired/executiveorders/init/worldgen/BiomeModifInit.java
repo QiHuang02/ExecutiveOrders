@@ -7,8 +7,8 @@ import net.minecraft.world.gen.GenerationStep;
 public class BiomeModifInit {
     public static void load() {
         BiomeModifications.addFeature(
-                BiomeSelectors.foundInOverworld(),
-                GenerationStep.Feature.UNDERGROUND_ORES,
+                BiomeSelectors.foundInTheNether(),
+                GenerationStep.Feature.UNDERGROUND_DECORATION,
                 PlacedFeatureInit.BEDROCK_PILLARS_KEY
         );
     }

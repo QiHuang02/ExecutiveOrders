@@ -85,7 +85,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
     @Inject(at = @At("TAIL"), method = "tick()V")
     private void tickmix(CallbackInfo info) {
-        if((this.isFallFlying()||this.getVelocity().length()>3) && this.getPos().length()>9800 && this.getWorld().getDimensionEntry().getKey().isPresent() && this.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END)
+        if((this.isFallFlying()||this.getVelocity().length()>3) && this.getPos().length()>9100 && this.getWorld().getDimensionEntry().getKey().isPresent() && this.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END)
         {
             if(getThunderedTime()<100)
             {

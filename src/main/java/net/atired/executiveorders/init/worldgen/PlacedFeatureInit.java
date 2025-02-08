@@ -6,6 +6,7 @@ import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.gen.YOffset;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.PlacedFeature;
@@ -22,7 +23,7 @@ public class PlacedFeatureInit {
         RegistryEntryLookup<ConfiguredFeature<?, ?>> registryLookup = context.getRegistryLookup(RegistryKeys.CONFIGURED_FEATURE);
         register(context, BEDROCK_PILLARS_KEY, registryLookup.getOrThrow(ConfiguredFeatureInit.BEDROCK_PILLARS),
                 Modifiers.modifiersCount(63,
-                        HeightRangePlacementModifier.uniform(YOffset.fixed(-64), YOffset.fixed(-62))));
+                        HeightmapPlacementModifier.of(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES)));
 
     }
 

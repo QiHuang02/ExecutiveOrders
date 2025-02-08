@@ -1,14 +1,24 @@
 package net.atired.executiveorders.mixins;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.atired.executiveorders.init.EODataComponentTypeInit;
 import net.atired.executiveorders.init.ItemsInit;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.DiffuseLighting;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.crash.CrashCallable;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
+import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -33,7 +43,60 @@ public abstract class PalePileDrawContextMixin {
 
     @Shadow @Final private MinecraftClient client;
 
-    @Inject(method = "Lnet/minecraft/client/gui/DrawContext;drawItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;IIII)V",at=@At("TAIL"))
+    @Shadow public abstract void draw();
+
+    @Shadow public abstract VertexConsumerProvider.Immediate getVertexConsumers();
+
+    @Inject(method = "Lnet/minecraft/client/gui/DrawContext;drawItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;IIII)V",at=@At("HEAD"),cancellable = true)
+    private void drawVitricItem(LivingEntity entity, World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci){
+        if(stack.get(EODataComponentTypeInit.VITRIC)!=null&&stack.get(EODataComponentTypeInit.VITRIC).intValue() == 1 ){
+            ci.cancel();
+            Quaternionf quaternionf2 = new Quaternionf();
+            RenderSystem.setShaderColor(1f,1f,1f,0.9f);
+            quaternionf2.rotationZYX((float) (Math.sin(this.client.player.getWorld().getTime()/6f+(x+y)/24f)*0.05f),0, 0);
+            this.matrices.multiply(quaternionf2,x+8, y+8,0);
+            this.matrices.translate(0,0,40.4f);
+
+                if (!stack.isEmpty()) {
+                    BakedModel bakedModel = this.client.getItemRenderer().getModel(stack, world, entity, seed);
+                    this.matrices.push();
+                    this.matrices.translate((float)(x + 8), (float)(y + 8), (float)(150 + (bakedModel.hasDepth() ? z : 0)));
+
+                    try {
+                        this.matrices.scale(16.0F, -16.0F, 16.0F);
+                        boolean bl = !bakedModel.isSideLit();
+                        if (bl) {
+                            DiffuseLighting.disableGuiDepthLighting();
+                        }
+
+                        this.client
+                                .getItemRenderer()
+                                .renderItem(stack, ModelTransformationMode.GUI, false, this.matrices, this.getVertexConsumers(), 15728880, OverlayTexture.DEFAULT_UV, bakedModel);
+                        this.draw();
+                        if (bl) {
+                            DiffuseLighting.enableGuiDepthLighting();
+                        }
+                    } catch (Throwable var12) {
+                        CrashReport crashReport = CrashReport.create(var12, "Rendering item");
+                        CrashReportSection crashReportSection = crashReport.addElement("Item being rendered");
+                        crashReportSection.add("Item Type", (CrashCallable<String>)(() -> String.valueOf(stack.getItem())));
+                        crashReportSection.add("Item Components", (CrashCallable<String>)(() -> String.valueOf(stack.getComponents())));
+                        crashReportSection.add("Item Foil", (CrashCallable<String>)(() -> String.valueOf(stack.hasGlint())));
+                        throw new CrashException(crashReport);
+                    }
+
+                    this.matrices.pop();
+                }
+
+            quaternionf2 = new Quaternionf().rotationZYX((float) -(Math.sin(this.client.player.getWorld().getTime()/6f+(x+y)/24f)*0.05f),0, 0);
+            this.matrices.translate(0,0,-40.4f);
+            this.matrices.multiply(quaternionf2,x+8, y+8,0);
+            RenderSystem.setShaderColor(1f,1f,1f,1f);
+
+        }
+    }
+
+        @Inject(method = "Lnet/minecraft/client/gui/DrawContext;drawItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;IIII)V",at=@At("TAIL"),cancellable = true)
     private void drawPaleItem(LivingEntity entity, World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci){
         if(stack.getItem() == ItemsInit.PALE_PILE&&stack.get(DataComponentTypes.CONTAINER)!=null){
             ContainerComponent containerComponent = (ContainerComponent) stack.get(DataComponentTypes.CONTAINER);
@@ -57,5 +120,6 @@ public abstract class PalePileDrawContextMixin {
             }
 
         }
+
     }
 }

@@ -28,6 +28,7 @@
     "PalePileDrawContextMixin",
     "ProjectileEntityRendererMixin",
     "ShaderProgramMixin",
+    "VitricItemRendererMixin",
     "WorldRendererMixin"
   ],
   "injectors": {

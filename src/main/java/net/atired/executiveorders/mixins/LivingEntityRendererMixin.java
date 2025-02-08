@@ -1,13 +1,16 @@
 package net.atired.executiveorders.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.atired.executiveorders.ExecutiveOrders;
 import net.atired.executiveorders.accessors.DepthsLivingEntityAccessor;
 import net.atired.executiveorders.accessors.LivingEntityAccessor;
+import net.atired.executiveorders.client.event.PaleUniformsEvent;
 import net.atired.executiveorders.client.layers.ExecutiveRenderLayers;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -30,6 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin extends EntityRenderer<LivingEntity> {
     private static final Identifier TEXTURE = ExecutiveOrders.id("textures/enchants/execute.png");
+    private Framebuffer framebuffer;
 
     protected LivingEntityRendererMixin(EntityRendererFactory.Context ctx) {
         super(ctx);
@@ -37,8 +41,10 @@ public abstract class LivingEntityRendererMixin extends EntityRenderer<LivingEnt
 
     @ModifyReturnValue(method = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getRenderLayer(Lnet/minecraft/entity/LivingEntity;ZZZ)Lnet/minecraft/client/render/RenderLayer;", at = @At("RETURN"))
     private @Nullable RenderLayer whySoJelly(@Nullable RenderLayer original,LivingEntity entity, boolean showBody, boolean translucent, boolean showOutline){
-        if(showBody && entity instanceof DepthsLivingEntityAccessor accessor && accessor.executiveOrders$isRadiant())
+        if(entity instanceof DepthsLivingEntityAccessor accessor && accessor.executiveOrders$isRadiant())
         {
+
+
             Identifier identifier = getTexture(entity);
             RenderLayer layer = ExecutiveRenderLayers.getExecutiveJelly(identifier);
             return layer;
@@ -47,8 +53,15 @@ public abstract class LivingEntityRendererMixin extends EntityRenderer<LivingEnt
 
         return original;
     }
+    @Inject(at = @At("TAIL"), method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V")
+    private void renderTail(LivingEntity livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
+
+    }
+
     @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V")
     private void rendermixin(LivingEntity livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+        this.framebuffer = MinecraftClient.getInstance().getFramebuffer();
+
         if(livingEntity instanceof LivingEntityAccessor accessor && accessor.getExecuteTime() >0 )
         {
 

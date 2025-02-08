@@ -12,6 +12,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
@@ -108,8 +110,14 @@ public class ExecutiveOrders implements ModInitializer {
                     ItemStack stack = itemEntity.getStack();
                     Optional<RecipeEntry<VoidtouchedRecipe>> recipe = world.getRecipeManager().getFirstMatch(VoidtouchedRecipe.Type.INSTANCE, new SingleStackRecipeInput(stack), world);
 
-                    if(itemEntity.getPos().length()>9600)
+                    if(itemEntity.getPos().length()>9100)
                     {
+                        FoodComponent foodComponent = stack.get(DataComponentTypes.FOOD);
+                        if(foodComponent!=null && stack.get(EODataComponentTypeInit.VITRIC) == null){
+                            FoodComponent foodComponentNew = new FoodComponent((int) Math.ceil(foodComponent.nutrition()/1.5),foodComponent.saturation()/1.5f,foodComponent.canAlwaysEat(),foodComponent.eatSeconds()/2,foodComponent.usingConvertsTo(),foodComponent.effects());
+                            stack.set(DataComponentTypes.FOOD,foodComponentNew);
+                            stack.set(EODataComponentTypeInit.VITRIC,1);
+                        }
                         Optional<RecipeEntry<VitrifiedRecipe>> recipeVitric = world.getRecipeManager().getFirstMatch(VitrifiedRecipe.Type.INSTANCE, new SingleStackRecipeInput(stack), world);
                         Optional<RecipeEntry<SmeltingRecipe>> recipe2 = world.getRecipeManager().getFirstMatch(RecipeType.SMELTING, new SingleStackRecipeInput(stack), world);
                         if(recipeVitric.isPresent()){

@@ -1,14 +1,14 @@
 #version 150
 
-uniform sampler2D DiffuseSampler;
-
-in vec2 texCoord;
-in vec2 oneTexel;
-
+uniform sampler2D Sampler0;
 uniform vec2 InSize;
-uniform float GameTime;
-uniform float Burn;
+uniform float STime;
 
+in vec4 vertexColor;
+in vec2 texCoord0;
+in vec2 texCoord1;
+in vec2 texCoord2;
+in vec4 normal;
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
 vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 vec3 fade(vec3 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
@@ -98,22 +98,17 @@ vec3 hsv2rgb(vec3 c)
 out vec4 fragColor;
 
 void main() {
-    vec2 mosaicInSize = InSize / 8;
-    vec4 baseCopy = texture(DiffuseSampler,texCoord);
-    vec2 texCopy = fract(texCoord*mosaicInSize)/mosaicInSize;
-    texCopy = texCoord-texCopy;
-    float texY = abs(texCopy.y-0.5)*2;
-    float noiseval = abs(cnoise(vec3(texCopy.x*8,texY*5+GameTime*2000,GameTime*24)+1)*pow(texY,1.2)/2f)+(texY)/1.5f+sin(texCopy.x*2+GameTime*2000)/20f-0.1f+pow(abs(texCopy.x-0.5)*2,2)/3f;
-    noiseval*=pow(Burn,1.2)*2.5+0.2;
-    vec3 hsvCopy = rgb2hsv(baseCopy.xyz);
-    hsvCopy.y*=(1-Burn*clamp(noiseval*2,0,1));
-    baseCopy.xyz = hsv2rgb(hsvCopy);
-    if(noiseval>.7f){
-        float frNoise = noiseval-fract(noiseval*4)/4;
-        baseCopy = vec4(1,1,1,1)*frNoise+baseCopy*(1-frNoise);
-        fragColor =baseCopy;
+
+    vec4 color = texture(Sampler0, texCoord0);
+    if(color.a<vertexColor.a){
+        discard;
     }
-    else{
-        fragColor =baseCopy;
-    }
+    vec3 hsvcol = rgb2hsv(color.xyz);
+    float alph = color.a*(0.6+1*((cos(texCoord0.y*400+STime+texCoord0.x*50))/2+0.5)*((sin(texCoord0.x*400-STime))/2+0.5));
+    color.a=alph;
+    hsvcol.y*=0.1;
+    color.xyz = hsv2rgb(hsvcol);
+    fragColor = color;
+
+
 }

@@ -1,10 +1,17 @@
 {
   "targets": [
+    "water",
+    "translucent",
+    "itemEntity",
+    "particles",
+    "clouds",
+    "weather",
+    "final",
     "swap"
   ],
   "passes": [
     {
-      "name": "executiveorders:pale",
+      "name": "executiveorders:roof",
       "intarget": "minecraft:main",
       "outtarget": "swap"
     },
@@ -12,7 +19,7 @@
       "name": "blit",
       "intarget": "swap",
       "outtarget": "minecraft:main"
-    }
 
+    }
   ]
 }

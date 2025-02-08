@@ -47,6 +47,13 @@ public abstract class InGameHudMixin {
             context.getMatrices().translate(Math.sin(tickCounter.getTickDelta(true)/6f+ MinecraftClient.getInstance().world.getTime()/6f)*1.9f*(1-valued), Math.cos(tickCounter.getTickDelta(true)/6f+ MinecraftClient.getInstance().world.getTime()/6f)*0.9f*(1-valued),0);
 
         }
+        if(player.getY()<-55 && (player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD||player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD_CAVES))
+        {
+            float valued = 1-(float) Math.clamp(-55-player.getY(),0,8)/8f;
+            context.setShaderColor(Math.clamp(valued+0.6f,0f,1f),Math.clamp(valued+0.7f,0f,1f),1f, 1f);
+            context.getMatrices().translate(Math.sin(tickCounter.getTickDelta(true)/24f+ MinecraftClient.getInstance().world.getTime()/24f)*3f*(1-valued), 0,0);
+
+        }
 
     }
     @Inject(method = "renderHeldItemTooltip(Lnet/minecraft/client/gui/DrawContext;)V", at = @At(value = "HEAD"),cancellable = true)
