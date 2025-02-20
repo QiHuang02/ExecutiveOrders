@@ -114,6 +114,8 @@ out vec4 fragColor;
 void main() {
     vec2 mosaicInSize = InSize /8;
     vec2 texCopy =texCoord- fract(texCoord*mosaicInSize)/mosaicInSize;
+    vec2 texCopier = vec2(texCopy.x+sin(texCopy.y*180+texCoord.x*40+GameTime*30000)/40*CamRot.y,texCopy.y+sin(texCopy.x*180+texCoord.y*40+GameTime*30000)/400*CamRot.y);
+    texCopy = texCopier;
     float texY = abs(texCopy.y-0.5)*2;
     float texX = abs(texCopy.x-0.5)*2;
     vec2 dir2 = vec2(0.5,0.5)-texCopy;
@@ -123,12 +125,12 @@ void main() {
     vec2 dir = vec2(0.5,0.5)-texCopy;
     dir = normalize(dir);
     dir = rotate(dir,dirCopy);
-    float noisy2 = (cnoise(vec3(texCopy.x*10+GameTime*200+1,texCopy.y*10+GameTime*200+1,GameTime*400+1))+1)/2-1.2+texY+texX;
+    float noisy2 = (cnoise(vec3(texCopy.x*10+GameTime*200+1,texCopy.y*10+GameTime*200+1,GameTime*400+1))+1)/2-1.5+texY+texX;
     noisy2*= Fade/2;
 
 
-    float noisy = cnoise(vec3(dir.x*5+GameTime*20,dir.y*5+GameTime*20,GameTime*400))*0.5-0.1+pow(texY*texY+texX*texX,0.5);
-    noisy *= Fade;
+    float noisy = cnoise(vec3(dir.x*5+GameTime*20,dir.y*5+GameTime*20,GameTime*400))*0.5-0.6+pow(texY*texY+texX*texX,0.5);
+    noisy *= Fade*1.9;
 
     float depth = LinearizeDepth(texture(DepthSampler, texCoord).r);
 
@@ -150,6 +152,9 @@ void main() {
     vec4 frag1 = texture(SculkSampler,texCoord);
     vec4 frag2 = texture(SculkSampler,texCoord+cos(GameTime*3000+texCoord.y*40)/100*Fade+sin(texCoord.x*40)/50*Fade);
     noisy2 = clamp(noisy2,0,1);
+    if(noisy>0.1 && CamRot.y>0.05){
+        baseCopy = texture(DiffuseSampler,texCopy);
+    }
     vec4 futFragColor = baseTexel*Fade+baseCopy*(1-Fade)-noisy2;
     if(distance>0.8){
         distance = clamp((distance-0.8)/3,0,1);
@@ -158,16 +163,17 @@ void main() {
     }
         if(noisy<0.5){
 
-            if(noisy>=0.4){
-                float howmuch = 1-clamp((0.5-noisy)/0.1,0,1);
+            if(noisy>=0.35){
+                float howmuch = 1-clamp((0.5-noisy)/0.15,0,1);
                 howmuch-=fract(howmuch*3)/3;
-                futFragColor =  vec4(0.4,0.55,0.8,1)*howmuch+futFragColor*(1-howmuch);
+                futFragColor =  vec4(0.4,0.55,0.8,1)*howmuch*(vec4(0.65-CamRot.y,0.65-CamRot.y,0.65-CamRot.y+0.01,1))+futFragColor*(1-howmuch);
                 if(frag1.b!=0){
                     futFragColor.rgb = mix(futFragColor.rgb,frag1.rgb/1.5,frag1.a/1.5);
                 }
                 fragColor =futFragColor;
             }
             else{
+
                 if(frag1.b!=0){
                     futFragColor.rgb = mix(futFragColor.rgb,frag1.rgb/4,frag1.a/4);
                 }
@@ -177,6 +183,7 @@ void main() {
 
         }
         else{
+
             if(pow(frag2.x*frag2.x+frag2.y*frag2.y+frag2.z*frag2.z,0.5)>0.8){
                 frag1 =  vec4(0.4,0.55,0.8,1);
             }
@@ -186,6 +193,7 @@ void main() {
                 texture(ActualSculkSampler,vec2(fract(texCoord.x*12+GameTime*400+texCoord.y/2),fract(texCoord.y*3+GameTime*100)))*0.7;
                 frag1*=vec4(0.5,0.8,1,1)-noisy;
             }
+
 
             fragColor = frag1;
         }

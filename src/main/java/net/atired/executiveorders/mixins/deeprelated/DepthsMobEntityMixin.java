@@ -69,7 +69,7 @@ public abstract class DepthsMobEntityMixin extends LivingEntity implements Depth
                 ((PalePileItem)ItemsInit.PALE_PILE).addItems(paleOoze,itemStacks);
                 ItemEntity itemEntity = this.dropStack(paleOoze);
                 itemEntity.setNoGravity(true);
-                itemEntity.setVelocity(itemEntity.getVelocity().multiply(0.5));
+
             }
 
 

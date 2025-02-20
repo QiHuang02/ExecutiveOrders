@@ -34,7 +34,7 @@ public class MonolithBlockEntityRenderer<T extends MonolithBlockEntity>
         float dist = (float) MinecraftClient.getInstance().getCameraEntity().getEyePos().distanceTo(entity.getPos().toCenterPos());
         float scale = 10;
         dist = (10.5f-dist)*2;
-        System.out.println(entity.alphaticks);
+
         dist = Math.clamp(dist,0,2);
         if(entity.alphaticks>1){
             scale/= (float) Math.pow(entity.alphaticks-tickDelta,0.4f);

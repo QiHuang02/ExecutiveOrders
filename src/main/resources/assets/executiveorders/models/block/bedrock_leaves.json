@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/leaves",
+  "textures": {
+    "all": "executiveorders:block/bedrock_leaves"
+  }
+}

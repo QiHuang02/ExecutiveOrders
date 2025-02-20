@@ -35,7 +35,10 @@ public abstract class InGameHudMixin {
     @Shadow public abstract TextRenderer getTextRenderer();
 
     @Shadow @Final private MinecraftClient client;
-
+    @Inject(method = "renderHotbar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", at = @At(value = "TAIL"))
+    private void injectedTail(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci){
+        context.setShaderColor(1,1,1,1);
+    }
     @Inject(method = "renderHotbar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", at = @At(value = "HEAD"))
     private void injected(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci)
     {

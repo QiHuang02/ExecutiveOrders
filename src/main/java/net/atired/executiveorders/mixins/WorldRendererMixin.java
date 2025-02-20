@@ -154,15 +154,12 @@ public abstract class WorldRendererMixin {
     private void depthEnemies(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci){
         if(!this.entityList.contains(entity) && entity instanceof DepthsLivingEntityAccessor accessor && accessor.executiveOrders$isRadiant()){
             this.entityList.add((Entity)entity);
-            ci.cancel();
-        }
-        else if(this.entityList.contains((Entity)entity)){
-
 
         }
     }
     @Inject(method = "render",at= @At(value = "INVOKE", target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;drawCurrentLayer()V",ordinal = 0,shift = At.Shift.BEFORE))
     private void depthMainEnemies(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci){
+        MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
         Vec3d vec3d = camera.getPos();
         double d = vec3d.getX();
         double e = vec3d.getY();
@@ -171,7 +168,9 @@ public abstract class WorldRendererMixin {
         VertexConsumerProvider.Immediate immediate = this.bufferBuilders.getEntityVertexConsumers();
         MatrixStack matrixStack = new MatrixStack();
         float delta = tickCounter.getTickDelta(false);
-        PaleUniformsEvent.getFramebuffer().beginWrite(true);
+        PaleUniformsEvent.getFramebuffer().copyDepthFrom(MinecraftClient.getInstance().getFramebuffer());
+        RenderSystem.depthMask(true);
+        PaleUniformsEvent.getFramebuffer().beginWrite(false);
         if(!this.entityList.isEmpty())
         {
             for(Entity entity : this.entityList){
@@ -183,13 +182,16 @@ public abstract class WorldRendererMixin {
                     int i = entity.getTeamColorValue();
                     outlineVertexConsumerProvider.setColor(ColorHelper.Argb.getRed(i), ColorHelper.Argb.getGreen(i), ColorHelper.Argb.getBlue(i), 255);
                 } else {
-                    vertexConsumerProvider = immediate;
+                    vertexConsumerProvider = PaleUniformsEvent.createPaleImmediat();
                 }
-                renderEntity(entity,d,e,g,delta,matrixStack,vertexConsumerProvider);
+                if(entity instanceof DepthsLivingEntityAccessor accessor && accessor.executiveOrders$isRadiant()){
+                    renderEntity(entity,d,e,g,delta,matrixStack,vertexConsumerProvider);
+                }
             }
             this.entityList.clear();
         }
         PaleUniformsEvent.getFramebuffer().endWrite();
+        MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
 
     }
     @Inject(method = "renderWeather", at = @At("HEAD"))

@@ -14,6 +14,7 @@ import net.minecraft.registry.Registry;
 
 public class ParticlesInit {
     public static final SimpleParticleType EXECUTE_PARTICLE = FabricParticleTypes.simple();
+    public static final SimpleParticleType VOID_PARTICLE = FabricParticleTypes.simple();
     public static final SimpleParticleType EFFIGY_PARTICLE = FabricParticleTypes.simple();
     public static final SimpleParticleType SPLISH_PARTICLE = FabricParticleTypes.simple();
     public static final ParticleType<SlashParticleEffect> HAUNTED_SLASH_PARTICLE = new ParticleType<>(true) {
@@ -45,5 +46,6 @@ public class ParticlesInit {
         Registry.register(Registries.PARTICLE_TYPE, ExecutiveOrders.id("execute_particle"),EXECUTE_PARTICLE);
         Registry.register(Registries.PARTICLE_TYPE, ExecutiveOrders.id("effigy_particle"),EFFIGY_PARTICLE);
         Registry.register(Registries.PARTICLE_TYPE, ExecutiveOrders.id("splish_particle"),SPLISH_PARTICLE);
+        Registry.register(Registries.PARTICLE_TYPE, ExecutiveOrders.id("void_particle"),VOID_PARTICLE);
     }
 }

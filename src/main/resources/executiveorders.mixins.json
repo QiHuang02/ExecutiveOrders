@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AbstractBlockMixin",
+    "ItemEntityMixin",
     "ItemStackMixin",
     "LivingEntityMixin",
     "PlayerEntityMixin",
@@ -26,6 +27,7 @@
     "LightTextureMixin",
     "LivingEntityRendererMixin",
     "PalePileDrawContextMixin",
+    "ParticleManagerMixin",
     "ProjectileEntityRendererMixin",
     "ShaderProgramMixin",
     "VitricItemRendererMixin",

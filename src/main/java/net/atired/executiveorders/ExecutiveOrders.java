@@ -131,7 +131,9 @@ public class ExecutiveOrders implements ModInitializer {
                     {
                         stack = stack.withItem(recipe.get().value().getResult(null).getItem());
                     }
+
                     ItemEntity newItemEntity = new ItemEntity(world,itemEntity.getX(),itemEntity.getY()+20,itemEntity.getZ(),stack);
+
                     newItemEntity.setNoGravity(true);
                     newItemEntity.addVelocity(0,1.5,0);
                     world.spawnEntity(newItemEntity);
