@@ -21,10 +21,14 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Util;
+import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.*;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.World;
@@ -41,6 +45,7 @@ public class JauntEntity extends ZombieEntity {
         setVolatile(getRandom().nextFloat() < 0.1f);
         limbAnimator.setSpeed(0.33f);
     }
+
     public boolean isVolatile() {
         return this.getDataTracker().get(VOLATILE);
     }
@@ -52,9 +57,9 @@ public class JauntEntity extends ZombieEntity {
         super.initDataTracker(builder);
         builder.add(VOLATILE, false);
     }
-
     @Override
     public void move(MovementType movementType, Vec3d movement) {
+
         if(isVolatile())
         {
             movement = movement.rotateY((float) (Math.sin(getWorld().getTime()*4)*1.5f));

@@ -65,6 +65,9 @@ public class ExecutiveOrders implements ModInitializer {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register(itemGroup -> {
             itemGroup.add(BlocksInit.MONOLITH);
         });
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(itemGroup -> {
+            itemGroup.add(BlocksInit.BEDROCK_LEAVES);
+        });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(itemGroup -> {
             itemGroup.add(BlocksInit.MONOLITH);
         });

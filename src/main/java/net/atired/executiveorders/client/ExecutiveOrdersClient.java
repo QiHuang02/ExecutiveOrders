@@ -7,6 +7,7 @@ import net.atired.executiveorders.accessors.LivingEntityAccessor;
 import net.atired.executiveorders.accessors.PersistentProjectileEntityAccessor;
 import net.atired.executiveorders.client.event.*;
 import net.atired.executiveorders.client.renderers.blockentity.MonolithBlockEntityRenderer;
+import net.atired.executiveorders.client.renderers.blockentity.VitricCampfireBlockEntityRenderer;
 import net.atired.executiveorders.client.renderers.entity.JauntRenderer;
 import net.atired.executiveorders.client.renderers.entity.VitrifiedRenderer;
 import net.atired.executiveorders.enemies.blockentity.MonolithBlockEntity;
@@ -28,6 +29,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.particle.ParticleTextureSheet;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.block.entity.CampfireBlockEntityRenderer;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.Entity;
@@ -52,6 +54,7 @@ import java.awt.*;
 
 public class ExecutiveOrdersClient implements ClientModInitializer {
     private static final ManagedShaderEffect PALE_PROGRAM;
+    private static final ManagedShaderEffect PALEBORDER_PROGRAM;
     private static final ManagedShaderEffect VOIDPAR_PROGRAM;
     private static final ManagedShaderEffect ROOF_PROGRAM;
     private static final ManagedShaderEffect AFTERBURN_PROGRAM;
@@ -71,11 +74,15 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
     };
     private static final Uniform1f paleFadeIn;
     public static final Uniform2f paleCamRot;
+    public static final Uniform1f palebordFadeIn;
+    public static final Uniform2f palebordCamRot;
     public static final Uniform1f voidTime;
     public static final SamplerUniformV2 paleSampler;
     public static final SamplerUniformV2 voidSampler;
+    public static final SamplerUniformV2 voidSampler2;
     public static final SamplerUniformV2 paleSampler2;
     private static final Uniform1f paleTime;
+    public static final Uniform1f palebordTime;
     private static final Uniform1f burnTime;
     private static final Uniform1f burnFadeIn;
     @Override
@@ -84,9 +91,12 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
         CoreShaderRegistrationCallback.EVENT.register(new CoreShaderRegistrationEvent());
         BlockRenderLayerMap.INSTANCE.putBlock(BlocksInit.MONOLITH, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(BlocksInit.BEDROCK_LEAVES, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlocksInit.VITRIC_CAMPFIRE, RenderLayer.getCutout());
         BlockEntityRendererRegistry.register(BlockEntityInit.MONOLITH_ENTITY_TYPE, MonolithBlockEntityRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, VitricCampfireBlockEntityRenderer::new);
         EntityRendererRegistry.INSTANCE.register(EntityTypeInit.VITRIFIED, VitrifiedRenderer::new);
         EntityRendererRegistry.INSTANCE.register(EntityTypeInit.JAUNT, JauntRenderer::new);
+        ParticleFactoryRegistry.getInstance().register(ParticlesInit.SMALL_VOID_PARTICLE, SmallVoidParticle.Factory::new);
         ParticleFactoryRegistry.getInstance().register(ParticlesInit.VOID_PARTICLE, VoidParticle.Factory::new);
         ParticleFactoryRegistry.getInstance().register(ParticlesInit.EXECUTE_PARTICLE, ExecuteParticle.Factory::new);
         ParticleFactoryRegistry.getInstance().register(ParticlesInit.EFFIGY_PARTICLE, EffigyParticle.Factory::new);
@@ -120,6 +130,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
             }
             return Color.HSBtoRGB(1,0,1);
         }, ItemsInit.HAUNTED_AXE);
+        ColorProviderRegistry.ITEM.register((provider, objects)-> Color.HSBtoRGB(1,0.1f,0.3f), BlocksInit.BEDROCK_LEAVES.asItem());
 
     }
     private void initpayloads(){
@@ -165,10 +176,17 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(new MarkiplierEvent());
 
         PostWorldRenderCallback.EVENT.register((camera, tickDelta)->{
+            PaleUniformsEvent.getFramebufferPar2().beginWrite(false);
+            RenderSystem.depthMask(true);
 
+            PaleUniformsEvent.createDarkImmediate().draw();
+
+            MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
 
         });
         EntitiesPostRenderCallback.EVENT.register((camera, frustum, tickDelta)->{
+
+            PaleUniformsEvent.getFramebufferPar2().copyDepthFrom(MinecraftClient.getInstance().getFramebuffer());
             PaleUniformsEvent.getFramebufferPar().copyDepthFrom(MinecraftClient.getInstance().getFramebuffer());
 
             MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
@@ -176,7 +194,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
         EntitiesPreRenderCallback.EVENT.register((camera, frustum, tickDelta) -> {
             PaleUniformsEvent.getFramebuffer().clear(true);
             PaleUniformsEvent.getFramebufferPar().clear(true);
-
+            PaleUniformsEvent.getFramebufferPar2().clear(true);
             if(MinecraftClient.getInstance().world != null)
                 uniformSTime.set((MinecraftClient.getInstance().world.getTime() + tickDelta) * 0.05f);
 
@@ -199,6 +217,9 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
     public static void renderPaleProgram(float ticks){
         PALE_PROGRAM.render(ticks);
     }
+    public static void renderPaleBorderProgram(float ticks){
+        PALEBORDER_PROGRAM.render(ticks);
+    }
     public static void renderBurnProgram(float ticks){
         AFTERBURN_PROGRAM.render(ticks);
     }
@@ -218,19 +239,27 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
         PALE_PROGRAM = ShaderEffectManager.getInstance().manage(ExecutiveOrders.id("shaders/post/pale.json"), shader ->{
             shader.setSamplerUniform("DepthSampler", ((ReadableDepthFramebuffer)MinecraftClient.getInstance().getFramebuffer()).getStillDepthMap());
         });
+        PALEBORDER_PROGRAM = ShaderEffectManager.getInstance().manage(ExecutiveOrders.id("shaders/post/paleborder.json"), shader ->{
+            shader.setSamplerUniform("DepthSampler", ((ReadableDepthFramebuffer)MinecraftClient.getInstance().getFramebuffer()).getStillDepthMap());
+        });
         ROOF_PROGRAM = ShaderEffectManager.getInstance().manage(ExecutiveOrders.id("shaders/post/roof.json"), shader ->{
             shader.setSamplerUniform("DepthSampler", ((ReadableDepthFramebuffer)MinecraftClient.getInstance().getFramebuffer()).getStillDepthMap());
         });
         AFTERBURN_PROGRAM = ShaderEffectManager.getInstance().manage(ExecutiveOrders.id("shaders/post/afterburn.json"));
         paleSampler = PALE_PROGRAM.findSampler("SculkSampler");
         voidSampler = VOIDPAR_PROGRAM.findSampler("ParSampler");
+        voidSampler2 = VOIDPAR_PROGRAM.findSampler("ParSampler2");
         paleSampler2 = PALE_PROGRAM.findSampler("ActualSculkSampler");
         paleFadeIn = PALE_PROGRAM.findUniform1f("Fade");
+        palebordFadeIn = PALEBORDER_PROGRAM.findUniform1f("Fade");
         paleTime = PALE_PROGRAM.findUniform1f("GameTime");
         paleCamRot = PALE_PROGRAM.findUniform2f("CamRot");
+        palebordCamRot = PALEBORDER_PROGRAM.findUniform2f("CamRot");
+        palebordTime = PALEBORDER_PROGRAM.findUniform1f("GameTime");
         burnTime = AFTERBURN_PROGRAM.findUniform1f("GameTime");
         voidTime = AFTERBURN_PROGRAM.findUniform1f("GameTime");
         burnFadeIn = AFTERBURN_PROGRAM.findUniform1f("Burn");
         paleFadeIn.set(0);
+        palebordCamRot.set(1,1);
     }
 }

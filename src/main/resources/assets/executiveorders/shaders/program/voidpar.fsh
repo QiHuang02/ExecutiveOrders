@@ -5,6 +5,7 @@ uniform sampler2D DiffuseSampler;
 uniform sampler2D DepthSampler;
 uniform sampler2D DiffuseDepthSampler;
 uniform sampler2D ParSampler;
+uniform sampler2D ParSampler2;
 in vec2 texCoord;
 in vec2 oneTexel;
 uniform vec2 InSize;
@@ -42,7 +43,8 @@ vec4 sobel(vec2 offsetex) {
         vec2 coord = offsetex + offset[i];
         coord.x = clamp(coord.x, 0, 1);
         coord.y = clamp(coord.y, 0, 1);
-        vec3 sampleVar = texture(ParSampler, coord).rgb;
+        vec3 sampleVar = texture(ParSampler, coord).rgb*texture(ParSampler2, coord).rgb+texture(DiffuseSampler,coord).rgb/8;
+        sampleVar = vec3(clamp(sampleVar.r,0,3.14),clamp(sampleVar.g,0,3.14),clamp(sampleVar.b,0,3.14));
         intensity = (sampleVar.r + sampleVar.g + sampleVar.b) / 3.0;
 
         if (i != 4) {
@@ -66,8 +68,8 @@ void main() {
     vec2 mosaicInSize = InSize / 4;
     vec2 offsettex = texCoord;
     offsettex-=fract(offsettex*mosaicInSize)/mosaicInSize;
-    if(texture(ParSampler,offsettex).r<1.0&&texture(DiffuseDepthSampler, texCoord).r>0.98){
-        fragColor = vec4(vec3(1,1,1)*sobel(offsettex).a,texture(ParSampler,offsettex).a);
+    if((texture(ParSampler,offsettex).r<1.0|| texture(ParSampler2,offsettex).r<1.0)&&texture(DiffuseDepthSampler, texCoord).r>0.98){
+        fragColor = vec4(vec3(1,1,1)*sobel(offsettex).a,clamp(texture(ParSampler,offsettex).a+texture(ParSampler2,offsettex).a,0,1f));
     }
     else{
         fragColor = texture(DiffuseSampler,texCoord);

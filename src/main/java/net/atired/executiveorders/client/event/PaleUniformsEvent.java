@@ -15,6 +15,7 @@ import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.dimension.DimensionTypes;
 import org.ladysnake.satin.api.event.ShaderEffectRenderCallback;
 
@@ -22,7 +23,7 @@ import java.util.SequencedMap;
 
 public class PaleUniformsEvent implements ShaderEffectRenderCallback {
     private static Framebuffer framebuffer;
-    private static final Identifier SCULK = ExecutiveOrders.id("textures/effect/sculk.png");
+    private static final Identifier MONOLITH = ExecutiveOrders.id("textures/block/vitric_fire2.png");
     public static Framebuffer getFramebuffer() {
         if (framebuffer == null) {
             framebuffer = new SimpleFramebuffer(MinecraftClient.getInstance().getFramebuffer().viewportWidth, MinecraftClient.getInstance().getFramebuffer().viewportHeight,true,false);
@@ -38,23 +39,41 @@ public class PaleUniformsEvent implements ShaderEffectRenderCallback {
         }
         return framebufferPar;
     }
+    private static Framebuffer framebufferPar2;
+    public static Framebuffer getFramebufferPar2() {
+        if (framebufferPar2 == null) {
+            framebufferPar2 = new SimpleFramebuffer(MinecraftClient.getInstance().getFramebuffer().viewportWidth, MinecraftClient.getInstance().getFramebuffer().viewportHeight,true,false);
+            framebufferPar2.setClearColor(1f, 1f, 1f, 0.0f);
+        }
+        return framebufferPar2;
+    }
     static VertexConsumerProvider.Immediate paleImmediate = null;
     public static VertexConsumerProvider.Immediate createPaleImmediat() {
         if (paleImmediate == null) {
             SequencedMap<RenderLayer, BufferAllocator> buffers = new Object2ObjectLinkedOpenHashMap<>();
-            buffers.put(ExecutiveRenderLayers.getExecutiveJelly(SCULK), new BufferAllocator(ExecutiveRenderLayers.getExecutiveJelly(SCULK).getExpectedBufferSize()));
+            buffers.put(ExecutiveRenderLayers.getExecutiveJelly(MONOLITH), new BufferAllocator(ExecutiveRenderLayers.getExecutiveJelly(MONOLITH).getExpectedBufferSize()));
             paleImmediate = VertexConsumerProvider.immediate(buffers,new BufferAllocator(256));
         }
         return paleImmediate;
     }
+    static VertexConsumerProvider.Immediate darkImmediate = null;
+    public static VertexConsumerProvider.Immediate createDarkImmediate() {
+        if (darkImmediate == null) {
+            SequencedMap<RenderLayer, BufferAllocator> buffers = new Object2ObjectLinkedOpenHashMap<>();
+            buffers.put(RenderLayer.getEntityTranslucent(MONOLITH), new BufferAllocator(RenderLayer.getEntityTranslucent(MONOLITH).getExpectedBufferSize()));
+            darkImmediate = VertexConsumerProvider.immediate(buffers,new BufferAllocator(256));
+        }
+        return darkImmediate;
+    }
     @Override
     public void renderShaderEffects(float v) {
+
         MinecraftClient client = MinecraftClient.getInstance();
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null) {
-            RenderSystem.depthMask(true);
 
             getFramebufferPar().beginRead();
+            ExecutiveOrdersClient.voidSampler2.set(getFramebufferPar2()::getColorAttachment);
             ExecutiveOrdersClient.voidSampler.set(getFramebufferPar()::getColorAttachment);
             ExecutiveOrdersClient.renderVoidParProgram(v);
             getFramebufferPar().endRead();
@@ -66,17 +85,23 @@ public class PaleUniformsEvent implements ShaderEffectRenderCallback {
                     ExecutiveOrdersClient.setBurnFadeIn((accessor.getThunderedTime()+v)/100f);
                     ExecutiveOrdersClient.renderBurnProgram(v);
                 }
-
+                ExecutiveOrdersClient.palebordTime.set((MinecraftClient.getInstance().world.getTime()+v)/24000f);
                 ExecutiveOrdersClient.setBurnTime((MinecraftClient.getInstance().world.getTime()+v)/24000f);
                 ExecutiveOrdersClient.setPaleTime((MinecraftClient.getInstance().world.getTime()+v)/24000f);
             }
+            WorldBorder worldBorder = MinecraftClient.getInstance().world.getWorldBorder();
+            float f = (float) MathHelper.clamp((12f - worldBorder.getDistanceInsideBorder(player))/12f,0f,1f);
+            ExecutiveOrdersClient.palebordFadeIn.set(f);
+            ExecutiveOrdersClient.palebordCamRot.set(1,1);
+            if(f>0)
+                ExecutiveOrdersClient.renderPaleBorderProgram(v);
             ExecutiveOrdersClient.paleCamRot.set(client.player.getPitch(v),((float) MathHelper.clamp((-player.getY()-64)/3f,0,0.65f)));
             ExecutiveOrdersClient.setPaleFadeIn((float) ((float) MathHelper.clamp((-player.getY()-51)/10f,0,0.7f)));
             if(client.player.getY()<=-51 && (client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD||client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD_CAVES)){
 
                 getFramebuffer().beginRead();
                 ExecutiveOrdersClient.paleSampler.set(getFramebuffer()::getColorAttachment);
-                ExecutiveOrdersClient.paleSampler2.set(MinecraftClient.getInstance().getTextureManager().getTexture(SCULK));
+                ExecutiveOrdersClient.paleSampler2.set(MinecraftClient.getInstance().getTextureManager().getTexture(MONOLITH));
                 ExecutiveOrdersClient.renderPaleProgram(v);
                 getFramebuffer().endRead();
 

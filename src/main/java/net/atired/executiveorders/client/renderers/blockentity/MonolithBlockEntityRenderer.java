@@ -17,9 +17,12 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 @Environment(EnvType.CLIENT)
 public class MonolithBlockEntityRenderer<T extends MonolithBlockEntity>
         implements BlockEntityRenderer<T> {
@@ -61,11 +64,12 @@ public class MonolithBlockEntityRenderer<T extends MonolithBlockEntity>
             }
         }
         Vec3d eyes = MinecraftClient.getInstance().getCameraEntity().getEyePos();
+        float pi = (float)Math.PI;
         for (int i = 0; i < amount+1; i++) {
-            float angle = 1.57f- (float)i/amount*3.14f;
-            float amounter = (float) Math.sin(3.14f*(2+ (double) i /amount));
+            float angle = pi/2f- (float)i/amount*pi;
+            float amounter = (float) Math.sin(pi*(2+ (double) i /amount));
             for (int j = 0; j < amount; j++) {
-                Vec3d offset2 = new Vec3d(scale,0,0).rotateZ(angle).rotateY((float) j/amount*2*3.14f+(entity.getWorld().getTime())/90f);
+                Vec3d offset2 = new Vec3d(scale,0,0).rotateZ(angle).rotateY((float) j/amount*2*pi+(entity.getWorld().getTime())/90f);
                 offset2 = offset2.multiply(EOgetDatNoise.sampleNoise3D((float)offset2.x,(float)offset2.y+entity.getWorld().getTime()/10f,(float)offset2.z,13f)/70/noiseoff+1f);
                 positions[i][j] = offset2.add(0,0.05,0);
                 bonustransparency[i][j] = Math.clamp((float) offset2.add(entity.getPos().toCenterPos()).distanceTo(eyes)/0.7f-2.5f,0f,1f);
@@ -86,10 +90,32 @@ public class MonolithBlockEntityRenderer<T extends MonolithBlockEntity>
         {
             for(int j = 0; j < amount; j++)
             {
-                vertex(pose,normal,consumer,positions[i][j],((float) j/amount),((float) i/amount), -1, 0, 0, 255, 1,1f,1,transparency*bonustransparency[i][j]);
-                vertex(pose,normal,consumer,positions[i+1][j],((float) j/amount),((i+1f)/amount), -1, 0, 0, 255,1,1f,1,transparency*bonustransparency[i+1][j]);
-                vertex(pose,normal,consumer,positions[i+1][(j+1)%amount],((j+1f)/amount),((i+1f)/amount), -1, 0, 0, 255,1,1,1,transparency*bonustransparency[i+1][(j+1)%amount]);
-                vertex(pose,normal,consumer,positions[i][(j+1)%amount],((j+1f)/amount),((float) i/amount), -1, 0, 0, 255,1,1,1,transparency*bonustransparency[i][(j+1)%amount]);
+                if(i>=amount/3&&i<amount*2/3){
+                    vertex(pose,normal,consumer,positions[i][j],((float) j/amount),1f-((float) i/amount*1.5f-amount/3f), -1, 0, 0, 255, 1,1f,1,transparency*bonustransparency[i][j]);
+                    vertex(pose,normal,consumer,positions[i+1][j],((float) j/amount),1f-((i+1f)/amount*1.5f-amount/3f), -1, 0, 0, 255,1,1f,1,transparency*bonustransparency[i+1][j]);
+                    vertex(pose,normal,consumer,positions[i+1][(j+1)%amount],((j+1f)/amount),1f-((i+1f)/amount*1.5f-amount/3f), -1, 0, 0, 255,1,1,1,transparency*bonustransparency[i+1][(j+1)%amount]);
+                    vertex(pose,normal,consumer,positions[i][(j+1)%amount],((j+1f)/amount),1f-((float) i/amount*1.5f-amount/3f), -1, 0, 0, 255,1,1,1,transparency*bonustransparency[i][(j+1)%amount]);
+                }
+                else if(i<amount/3){
+                    Vector3f uv1 = new Vec3d(0,0.25,0).rotateZ((j+1f) /amount*pi*2).multiply(((i+1f)/amount*3f)).add(0.75,0.75,0).toVector3f();
+                    Vector3f uv2 = new Vec3d(0,0.25,0).rotateZ((float) j /amount*pi *2).multiply(((float) i/amount*3f)).add(0.75,0.75,0).toVector3f();
+                    Vector3f uv3 = new Vec3d(0,0.25,0).rotateZ((float) j /amount*pi*2 ).multiply(((i+1f)/amount*3f)).add(0.75,0.75,0).toVector3f();
+                    Vector3f uv4 = new Vec3d(0,0.25,0).rotateZ((j+1f) /amount*pi*2 ).multiply(((float) i/amount*3f)).add(0.75,0.75,0).toVector3f();
+                    vertex(pose,normal,consumer,positions[i][j],uv2.x,uv2.y, -1, 0, 0, 255, 1,1f,1,transparency*bonustransparency[i][j]);
+                    vertex(pose,normal,consumer,positions[i+1][j],uv3.x,uv3.y, -1, 0, 0, 255,1,1f,1,transparency*bonustransparency[i+1][j]);
+                    vertex(pose,normal,consumer,positions[i+1][(j+1)%amount],uv1.x,uv1.y, -1, 0, 0, 255,1,1,1,transparency*bonustransparency[i+1][(j+1)%amount]);
+                    vertex(pose,normal,consumer,positions[i][(j+1)%amount],uv4.x, uv4.y, -1, 0, 0, 255,1,1,1,transparency*bonustransparency[i][(j+1)%amount]);
+                }
+                else{
+                    Vector3f uv1 = new Vec3d(0,0.25,0).rotateZ((j+1f) /amount*pi*2).multiply(1-((i+1f)/amount*3f-2f)).add(0.25,0.75,0).toVector3f();
+                    Vector3f uv2 = new Vec3d(0,0.25,0).rotateZ((float) j /amount*pi *2).multiply(1-((float) i/amount*3f-2f)).add(0.25,0.75,0).toVector3f();
+                    Vector3f uv3 = new Vec3d(0,0.25,0).rotateZ((float) j /amount*pi*2 ).multiply(1-((i+1f)/amount*3f-2f)).add(0.25,0.75,0).toVector3f();
+                    Vector3f uv4 = new Vec3d(0,0.25,0).rotateZ((j+1f) /amount*pi*2 ).multiply(1-((float) i/amount*3f-2f)).add(0.25,0.75,0).toVector3f();
+                    vertex(pose,normal,consumer,positions[i][j],uv2.x,uv2.y, -1, 0, 0, 255, 1,1f,1,transparency*bonustransparency[i][j]);
+                    vertex(pose,normal,consumer,positions[i+1][j],uv3.x,uv3.y, -1, 0, 0, 255,1,1f,1,transparency*bonustransparency[i+1][j]);
+                    vertex(pose,normal,consumer,positions[i+1][(j+1)%amount],uv1.x,uv1.y, -1, 0, 0, 255,1,1,1,transparency*bonustransparency[i+1][(j+1)%amount]);
+                    vertex(pose,normal,consumer,positions[i][(j+1)%amount],uv4.x, uv4.y, -1, 0, 0, 255,1,1,1,transparency*bonustransparency[i][(j+1)%amount]);
+                }
             }
         }
         stack.pop();
