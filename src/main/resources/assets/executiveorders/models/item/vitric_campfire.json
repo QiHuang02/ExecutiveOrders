@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "executiveorders:item/vitric_campfire"
+  }
+}

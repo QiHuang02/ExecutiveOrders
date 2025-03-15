@@ -24,7 +24,7 @@ public abstract class ItemEntityMixin extends Entity {
     @Inject(method = "tick",at=@At("TAIL"))
     private void tickTockVoid(CallbackInfo ci){
         if(this.hasNoGravity() && this.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END && this.getWorld().isClient() && this.getVelocity().length()>0.1){
-            this.getWorld().addParticle(ParticlesInit.VOID_PARTICLE,getParticleX(0.5),getY()+Math.random()/2,getParticleZ(0.5),(Math.random()-0.5)/6,-0.1,(Math.random()-0.5)/6);
+            this.getWorld().addImportantParticle(ParticlesInit.VOID_PARTICLE,getParticleX(0.5),getY()+Math.random()/2,getParticleZ(0.5),(Math.random()-0.5)/6,-0.1,(Math.random()-0.5)/6);
         }
     }
 

@@ -196,48 +196,48 @@ public abstract class WorldRendererMixin {
     }
     @Inject(method = "renderWeather", at = @At("HEAD"))
     private void notRenderEndAtTheEmdSky(LightmapTextureManager manager, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci){
-        if(MinecraftClient.getInstance().player.getPos().length()>9000&&MinecraftClient.getInstance().player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END)
-        {
-                manager.enable();
-                MatrixStack matrices = new MatrixStack();
-                Vector3f color = new Vector3f(1f,1f,1f);
-                float pos = (float) (cameraY-62.5);
-                float alpha = (float) Math.clamp((MinecraftClient.getInstance().player.getPos().length()-9000f)/100f,0f,1f)/2f;
-                RenderSystem.depthMask(true);
-                RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-                RenderSystem.setShaderTexture(0, FOGGIEST_SKY);
-                RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.DST_ALPHA, GlStateManager.SrcFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_DST_ALPHA);
-                RenderSystem.enableBlend();
-                RenderSystem.enableDepthTest();
-                Tessellator tessellator = Tessellator.getInstance();
-                for (int i = 0; i <1; ++i) {
-                    matrices.push();
-                    float timex = (float) Math.sin((double) MinecraftClient.getInstance().world.getTimeOfDay()/100+i*4)*12;
-                    float timez = (float) Math.cos((double) MinecraftClient.getInstance().world.getTimeOfDay()/100+i*4)*12;
-                    float mult = -1;
-                    if(i>0){
-                        mult = 1;
-                        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0f));
-                    }
-                    Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-                    BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-                    double v = timez - (cameraZ % 216)*-1*mult;
-                    bufferBuilder.vertex(matrix4f,(float) (-540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v-540.0f).texture(0.0f, 0.0f).color(color.x,color.y,color.z,alpha);
-                    bufferBuilder.vertex(matrix4f,(float) (-540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v+540.0f).texture(0.0f, 10.0f).color(color.x,color.y,color.z,alpha);
-                    bufferBuilder.vertex(matrix4f,(float) (540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v+540.0f).texture(10.0f, 10.0f).color(color.x,color.y,color.z,alpha);
-                    bufferBuilder.vertex(matrix4f,(float) (540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v-540.0f).texture(10.0f, 0.0f).color(color.x,color.y,color.z,alpha);
-
-                    BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
-                    matrices.pop();
-                }
-
-                manager.disable();
-                RenderSystem.depthMask(true);
-                RenderSystem.defaultBlendFunc();
-                RenderSystem.disableBlend();
-
-
-        }
+//        if(MinecraftClient.getInstance().player.getPos().length()>9000&&MinecraftClient.getInstance().player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END)
+//        {
+//                manager.enable();
+//                MatrixStack matrices = new MatrixStack();
+//                Vector3f color = new Vector3f(1f,1f,1f);
+//                float pos = (float) (cameraY-62.5);
+//                float alpha = (float) Math.clamp((MinecraftClient.getInstance().player.getPos().length()-9000f)/100f,0f,1f)/2f;
+//                RenderSystem.depthMask(true);
+//                RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+//                RenderSystem.setShaderTexture(0, FOGGIEST_SKY);
+//                RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.DST_ALPHA, GlStateManager.SrcFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_DST_ALPHA);
+//                RenderSystem.enableBlend();
+//                RenderSystem.enableDepthTest();
+//                Tessellator tessellator = Tessellator.getInstance();
+//                for (int i = 0; i <1; ++i) {
+//                    matrices.push();
+//                    float timex = (float) Math.sin((double) MinecraftClient.getInstance().world.getTimeOfDay()/100+i*4)*12;
+//                    float timez = (float) Math.cos((double) MinecraftClient.getInstance().world.getTimeOfDay()/100+i*4)*12;
+//                    float mult = -1;
+//                    if(i>0){
+//                        mult = 1;
+//                        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0f));
+//                    }
+//                    Matrix4f matrix4f = matrices.peek().getPositionMatrix();
+//                    BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+//                    double v = timez - (cameraZ % 216)*-1*mult;
+//                    bufferBuilder.vertex(matrix4f,(float) (-540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v-540.0f).texture(0.0f, 0.0f).color(color.x,color.y,color.z,alpha);
+//                    bufferBuilder.vertex(matrix4f,(float) (-540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v+540.0f).texture(0.0f, 10.0f).color(color.x,color.y,color.z,alpha);
+//                    bufferBuilder.vertex(matrix4f,(float) (540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v+540.0f).texture(10.0f, 10.0f).color(color.x,color.y,color.z,alpha);
+//                    bufferBuilder.vertex(matrix4f,(float) (540.0f+timex-cameraX%216), -4+mult*pos-i, (float) v-540.0f).texture(10.0f, 0.0f).color(color.x,color.y,color.z,alpha);
+//
+//                    BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+//                    matrices.pop();
+//                }
+//
+//                manager.disable();
+//                RenderSystem.depthMask(true);
+//                RenderSystem.defaultBlendFunc();
+//                RenderSystem.disableBlend();
+//
+//
+//        }
     }
     @Inject(method = "renderEndSky(Lnet/minecraft/client/util/math/MatrixStack;)V", at = @At("TAIL"),cancellable = true)
     private void notRenderEndSky(MatrixStack matrices, CallbackInfo ci){

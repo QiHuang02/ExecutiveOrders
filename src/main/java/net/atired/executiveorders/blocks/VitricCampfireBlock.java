@@ -2,6 +2,7 @@ package net.atired.executiveorders.blocks;
 
 import net.atired.executiveorders.enemies.blockentity.VitricCampfireBlockEntity;
 import net.atired.executiveorders.init.BlockEntityInit;
+import net.atired.executiveorders.init.EODataComponentTypeInit;
 import net.atired.executiveorders.init.ParticlesInit;
 import net.atired.executiveorders.recipe.VitrifiedRecipe;
 import net.minecraft.block.BlockState;
@@ -10,6 +11,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.CampfireBlockEntity;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
@@ -72,6 +75,9 @@ public class VitricCampfireBlock extends CampfireBlock {
     }
     @Override
     protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if(player.isSneaking()){
+            return ItemActionResult.FAIL;
+        }
         if (world.getBlockEntity(pos) instanceof VitricCampfireBlockEntity campfireBlockEntity) {
             ItemStack itemStack = player.getStackInHand(hand);
             Optional<RecipeEntry<VitrifiedRecipe>> optional = campfireBlockEntity.getRecipeFor(itemStack);
@@ -80,12 +86,17 @@ public class VitricCampfireBlock extends CampfireBlock {
                     player.incrementStat(Stats.INTERACT_WITH_CAMPFIRE);
                     return ItemActionResult.SUCCESS;
                 }
-
-                return ItemActionResult.CONSUME;
             }
-        }
+            FoodComponent foodComponent = stack.get(DataComponentTypes.FOOD);
+            if(foodComponent!=null && stack.get(EODataComponentTypeInit.VITRIC) == null){
+                if (!world.isClient && campfireBlockEntity.addItem(player, itemStack, 90)) {
+                    player.incrementStat(Stats.INTERACT_WITH_CAMPFIRE);
+                    return ItemActionResult.SUCCESS;
+                }
+            }
 
-        return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        return ItemActionResult.SUCCESS;
     }
     public static void spawnSmokeParticle(World world, BlockPos pos, boolean isSignal, boolean lotsOfSmoke) {
         Random random = world.getRandom();

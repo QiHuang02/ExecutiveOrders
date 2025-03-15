@@ -19,6 +19,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
@@ -27,6 +28,8 @@ import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.SmeltingRecipe;
 import net.minecraft.recipe.input.SingleStackRecipeInput;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -39,6 +42,7 @@ import java.util.Set;
 public class ExecutiveOrders implements ModInitializer {
     public static final String MODID = "executiveorders";
     public static float YEAH = 0f;
+
     @Override
     public void onInitialize() {
 
@@ -70,6 +74,7 @@ public class ExecutiveOrders implements ModInitializer {
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(itemGroup -> {
             itemGroup.add(BlocksInit.MONOLITH);
+            itemGroup.add(BlocksInit.VITRIC_CAMPFIRE);
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(itemGroup -> {
             itemGroup.add(ItemsInit.SWORDFISH);

@@ -2,8 +2,11 @@ package net.atired.executiveorders.enemies.blockentity;
 
 import net.atired.executiveorders.blocks.VitricCampfireBlock;
 import net.atired.executiveorders.init.BlockEntityInit;
+import net.atired.executiveorders.init.EODataComponentTypeInit;
+import net.atired.executiveorders.init.ParticlesInit;
 import net.atired.executiveorders.recipe.ExecutiveOrdersRecipes;
 import net.atired.executiveorders.recipe.VitrifiedRecipe;
+import net.atired.executiveorders.recipe.VoidtouchedRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CampfireBlock;
@@ -13,6 +16,7 @@ import net.minecraft.block.entity.CampfireBlockEntity;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ContainerComponent;
+import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
@@ -45,8 +49,7 @@ public class VitricCampfireBlockEntity extends BlockEntity implements Clearable 
     private final DefaultedList<ItemStack> itemsBeingCooked = DefaultedList.ofSize(4, ItemStack.EMPTY);
     private final int[] cookingTimes = new int[4];
     private final int[] cookingTotalTimes = new int[4];
-    private final RecipeManager.MatchGetter<SingleStackRecipeInput, VitrifiedRecipe> matchGetter = RecipeManager.createCachedMatchGetter(VitrifiedRecipe.Type.INSTANCE
-    );
+    private final RecipeManager.MatchGetter<SingleStackRecipeInput, VitrifiedRecipe> matchGetter = RecipeManager.createCachedMatchGetter(VitrifiedRecipe.Type.INSTANCE);
     public VitricCampfireBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, pos, state);
     }
@@ -61,11 +64,20 @@ public class VitricCampfireBlockEntity extends BlockEntity implements Clearable 
                 campfire.cookingTimes[i]++;
                 if (campfire.cookingTimes[i] >= campfire.cookingTotalTimes[i]) {
                     SingleStackRecipeInput singleStackRecipeInput = new SingleStackRecipeInput(itemStack);
-                    ItemStack itemStack2 = (ItemStack)campfire.matchGetter
-                            .getFirstMatch(singleStackRecipeInput, world)
-                            .map(recipe -> ((VitrifiedRecipe)recipe.value()).craft(singleStackRecipeInput, world.getRegistryManager()))
-                            .orElse(itemStack);
+                    Optional<RecipeEntry<VitrifiedRecipe>> recipe = world.getRecipeManager().getFirstMatch(VitrifiedRecipe.Type.INSTANCE, singleStackRecipeInput, world);
+                    ItemStack itemStack2 = itemStack;
+                    if(recipe.isPresent()){
+                        itemStack2 = itemStack.withItem(recipe.get().value().getResult(null).getItem());
+                    }
+                    FoodComponent foodComponent = itemStack.get(DataComponentTypes.FOOD);
+                    if(foodComponent!=null && itemStack.get(EODataComponentTypeInit.VITRIC) == null)
+                    {
+                        FoodComponent foodComponentNew = new FoodComponent((int) Math.ceil(foodComponent.nutrition()/1.5),foodComponent.saturation()/1.5f,foodComponent.canAlwaysEat(),foodComponent.eatSeconds()/2,foodComponent.usingConvertsTo(),foodComponent.effects());
+                        itemStack.set(DataComponentTypes.FOOD,foodComponentNew);
+                        itemStack.set(EODataComponentTypeInit.VITRIC,1);
+                    }
                     if (itemStack2.isItemEnabled(world.getEnabledFeatures())) {
+
                         ItemScatterer.spawn(world, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ(), itemStack2);
                         campfire.itemsBeingCooked.set(i, ItemStack.EMPTY);
                         world.updateListeners(pos, state, state, Block.NOTIFY_ALL);
@@ -120,7 +132,7 @@ public class VitricCampfireBlockEntity extends BlockEntity implements Clearable 
                         + (double)((float)direction.rotateYClockwise().getOffsetZ() * 0.3125F);
 
                 for (int k = 0; k < 4; k++) {
-                    world.addParticle(ParticleTypes.SMOKE, d, e, g, 0.0, 5.0E-4, 0.0);
+                    world.addParticle(ParticlesInit.SMALL_VOID_PARTICLE, d, e, g, 0.0, 5.0E-4, 0.0);
                 }
             }
         }
