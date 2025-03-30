@@ -121,7 +121,15 @@ void main() {
         pos.z -= sin(cnoise(Position*40))/4;
         pos.y -= sin(cnoise(Position*40+vec3(sin(GameTime*128)*2, GameTime*128, cos(GameTime*128)*2)))/4;
     }
-    gl_Position = ProjMat * ModelViewMat * vec4(pos, 1.0);
 
-    texCoord0 = UV0;
+    if(Color.a<0.05){
+        texCoord0 = UV0;
+        vertexColor = vec4(0,0,0,0);
+        gl_Position = ProjMat * ModelViewMat * vec4(pos, 2);
+    }
+    else{
+        texCoord0 = UV0;
+        gl_Position = ProjMat * ModelViewMat * vec4(pos, 1);
+    }
+
 }

@@ -49,7 +49,7 @@ public abstract class WorldRendererMixin {
 
     @Shadow @Final private BufferBuilderStorage bufferBuilders;
     @Unique
-    private final List<Entity> entityList = new ArrayList<Entity>();
+    private final List<Integer> entityList = new ArrayList<Integer>();
     private static final Identifier NETHER_SKY = ExecutiveOrders.id("textures/misc/monolith.png");
     private static final Identifier NETHER_MAW = ExecutiveOrders.id("textures/misc/maw1.png");
     private static final Identifier NETHER_MAW2 = ExecutiveOrders.id("textures/misc/maw2.png");
@@ -152,14 +152,14 @@ public abstract class WorldRendererMixin {
     }
     @Inject(method = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V", at = @At("HEAD"),cancellable = true)
     private void depthEnemies(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo ci){
-        if(!this.entityList.contains(entity) && entity instanceof DepthsLivingEntityAccessor accessor && accessor.executiveOrders$isRadiant()){
-            this.entityList.add((Entity)entity);
-
+        if(PaleUniformsEvent.createPaleImmediat()!=vertexConsumers && entity instanceof DepthsLivingEntityAccessor accessor && accessor.executiveOrders$isRadiant()) {
+            RenderSystem.setShaderColor(1,1,1,0.02f);
         }
     }
-    @Inject(method = "render",at= @At(value = "INVOKE", target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;drawCurrentLayer()V",ordinal = 0,shift = At.Shift.BEFORE))
+    @Inject(method = "render",at= @At(value = "INVOKE", target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;drawCurrentLayer()V",ordinal = 0,shift = At.Shift.AFTER))
     private void depthMainEnemies(RenderTickCounter tickCounter, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci){
         MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
+
         Vec3d vec3d = camera.getPos();
         double d = vec3d.getX();
         double e = vec3d.getY();
@@ -169,29 +169,30 @@ public abstract class WorldRendererMixin {
         MatrixStack matrixStack = new MatrixStack();
         float delta = tickCounter.getTickDelta(false);
         PaleUniformsEvent.getFramebuffer().copyDepthFrom(MinecraftClient.getInstance().getFramebuffer());
-        RenderSystem.depthMask(true);
-        PaleUniformsEvent.getFramebuffer().beginWrite(false);
-        if(!this.entityList.isEmpty())
-        {
-            for(Entity entity : this.entityList){
-                VertexConsumerProvider vertexConsumerProvider;
+        RenderSystem.enableDepthTest();
+            PaleUniformsEvent.getFramebuffer().beginWrite(false);
+            for(Entity entity : this.world.getEntities()){
+
+                if(entity == null){
+                    break;
+                }
+                VertexConsumerProvider vertexConsumerProvider= immediate;
                 if (this.canDrawEntityOutlines() && this.client.hasOutline(entity)) {
                     bl3 = true;
                     OutlineVertexConsumerProvider outlineVertexConsumerProvider = this.bufferBuilders.getOutlineVertexConsumers();
                     vertexConsumerProvider = outlineVertexConsumerProvider;
                     int i = entity.getTeamColorValue();
                     outlineVertexConsumerProvider.setColor(ColorHelper.Argb.getRed(i), ColorHelper.Argb.getGreen(i), ColorHelper.Argb.getBlue(i), 255);
-                } else {
-                    vertexConsumerProvider = PaleUniformsEvent.createPaleImmediat();
                 }
-                if(entity instanceof DepthsLivingEntityAccessor accessor && accessor.executiveOrders$isRadiant()){
-                    renderEntity(entity,d,e,g,delta,matrixStack,vertexConsumerProvider);
-                }
+                if(entity instanceof DepthsLivingEntityAccessor accessor && accessor.executiveOrders$isRadiant())
+                    renderEntity(entity,d,e,g,delta,matrixStack,PaleUniformsEvent.createPaleImmediat());
+
             }
-            this.entityList.clear();
-        }
-        PaleUniformsEvent.getFramebuffer().endWrite();
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
+            PaleUniformsEvent.createPaleImmediat().draw();
+            PaleUniformsEvent.getFramebuffer().endWrite();
+            MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
+
+
 
     }
     @Inject(method = "renderWeather", at = @At("HEAD"))

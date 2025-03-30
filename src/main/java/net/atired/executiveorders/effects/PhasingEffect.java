@@ -47,18 +47,21 @@ public class PhasingEffect extends StatusEffect {
     @Override
     public boolean applyUpdateEffect(LivingEntity entity, int amplifier) {
 
-        Vec3d pos = entity.getPos().add(entity.getVelocity().multiply(0.2,0.8,0.2).multiply(amplifier));
+        Vec3d pos = entity.getPos().add(entity.getVelocity().multiply(0.2,0.1,0.2).multiply(amplifier));
         if(entity instanceof PlayerEntity) {
             entity.noClip = false;
             if (entity.isInsideWall())
             {
-                pos = pos.add(0,-0.16,0);
+                pos = pos.add(0,-0.04,0);
                 StatusEffectInstance inst = entity.getStatusEffect(MobEffectsInit.PHASING_EFFECT);
                 inst = new StatusEffectInstance(MobEffectsInit.PHASING_EFFECT, inst.getDuration()+1, inst.getAmplifier(),inst.isAmbient(),inst.shouldShowParticles(),inst.shouldShowIcon());
                 entity.addStatusEffect(inst);
             }
-            else{
-                entity.setVelocity(entity.getVelocity().multiply(0.94));
+            else if(entity.getY()<120){
+                entity.setVelocity(entity.getVelocity().multiply(0.9));
+                StatusEffectInstance inst = entity.getStatusEffect(MobEffectsInit.PHASING_EFFECT);
+                inst = new StatusEffectInstance(MobEffectsInit.PHASING_EFFECT, inst.getDuration()-1, inst.getAmplifier(),inst.isAmbient(),inst.shouldShowParticles(),inst.shouldShowIcon());
+                entity.addStatusEffect(inst);
             }
             entity.noClip = true;
             entity.setPos(pos.x,pos.y,pos.z);

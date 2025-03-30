@@ -69,7 +69,7 @@ public class JauntEntity extends ZombieEntity {
     public static boolean canJauntSpawn(EntityType<? extends HostileEntity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
         BlockPos blockPos = pos.down();
         if (world.getDimension().respawnAnchorWorks()){
-            return HostileEntity.canSpawnIgnoreLightLevel(type, world, spawnReason, pos, random)&&pos.getY()>100;
+            return HostileEntity.canSpawnIgnoreLightLevel(type, world, spawnReason, pos, random)&&pos.getY()>120;
         }
         return HostileEntity.canSpawnIgnoreLightLevel(type, world, spawnReason, pos, random);
     }

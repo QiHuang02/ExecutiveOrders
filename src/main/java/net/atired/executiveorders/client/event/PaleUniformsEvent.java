@@ -6,6 +6,7 @@ import net.atired.executiveorders.ExecutiveOrders;
 import net.atired.executiveorders.accessors.LivingEntityAccessor;
 import net.atired.executiveorders.client.ExecutiveOrdersClient;
 import net.atired.executiveorders.client.layers.ExecutiveRenderLayers;
+import net.atired.executiveorders.init.MobEffectsInit;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
@@ -72,11 +73,7 @@ public class PaleUniformsEvent implements ShaderEffectRenderCallback {
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null) {
 
-            getFramebufferPar().beginRead();
-            ExecutiveOrdersClient.voidSampler2.set(getFramebufferPar2()::getColorAttachment);
-            ExecutiveOrdersClient.voidSampler.set(getFramebufferPar()::getColorAttachment);
-            ExecutiveOrdersClient.renderVoidParProgram(v);
-            getFramebufferPar().endRead();
+
             RenderSystem.depthMask(false);
             if(MinecraftClient.getInstance().world != null)
             {
@@ -96,21 +93,25 @@ public class PaleUniformsEvent implements ShaderEffectRenderCallback {
             if(f>0)
                 ExecutiveOrdersClient.renderPaleBorderProgram(v);
             ExecutiveOrdersClient.paleCamRot.set(client.player.getPitch(v),((float) MathHelper.clamp((-player.getY()-64)/3f,0,0.65f)));
-            ExecutiveOrdersClient.setPaleFadeIn((float) ((float) MathHelper.clamp((-player.getY()-51)/10f,0,0.7f)));
+            ExecutiveOrdersClient.setPaleFadeIn((float) ((float) MathHelper.clamp((-player.getY()-53)/3f,0,0.85f)));
             if(client.player.getY()<=-51 && (client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD||client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.OVERWORLD_CAVES)){
 
                 getFramebuffer().beginRead();
                 ExecutiveOrdersClient.paleSampler.set(getFramebuffer()::getColorAttachment);
-                ExecutiveOrdersClient.paleSampler2.set(MinecraftClient.getInstance().getTextureManager().getTexture(MONOLITH));
+                ExecutiveOrdersClient.paleSampler2.set(MinecraftClient.getInstance().getTextureManager().getTexture(ExecutiveOrders.id("textures/effect/sculk.png")));
                 ExecutiveOrdersClient.renderPaleProgram(v);
                 getFramebuffer().endRead();
-
 
             }
             if(client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_NETHER && client.player.getPos().y>123){
 
                 ExecutiveOrdersClient.renderRoofProgram(0);
             }
+            getFramebufferPar().beginRead();
+            ExecutiveOrdersClient.voidSampler2.set(getFramebufferPar2()::getColorAttachment);
+            ExecutiveOrdersClient.voidSampler.set(getFramebufferPar()::getColorAttachment);
+            ExecutiveOrdersClient.renderVoidParProgram(v);
+            getFramebufferPar().endRead();
         }
         else{
             ExecutiveOrdersClient.setPaleFadeIn(0);

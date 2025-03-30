@@ -33,6 +33,7 @@ import net.minecraft.client.render.block.entity.CampfireBlockEntityRenderer;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ColorCode;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
@@ -78,6 +79,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
     public static final Uniform2f palebordCamRot;
     public static final Uniform1f voidTime;
     public static final SamplerUniformV2 paleSampler;
+    public static final SamplerUniformV2 paleSamplerDepth;
     public static final SamplerUniformV2 voidSampler;
     public static final SamplerUniformV2 voidSampler2;
     public static final SamplerUniformV2 paleSampler2;
@@ -174,7 +176,6 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(new HollowCoreRenderEvent());
         HudRenderCallback.EVENT.register(new ThunderedRenderEvent());
         HudRenderCallback.EVENT.register(new MarkiplierEvent());
-
         PostWorldRenderCallback.EVENT.register((camera, tickDelta)->{
             PaleUniformsEvent.getFramebufferPar2().beginWrite(false);
             RenderSystem.depthMask(true);
@@ -182,16 +183,19 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
             PaleUniformsEvent.createDarkImmediate().draw();
 
             MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
-
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthMask(false);
         });
         EntitiesPostRenderCallback.EVENT.register((camera, frustum, tickDelta)->{
 
+            PaleUniformsEvent.getFramebuffer().copyDepthFrom(MinecraftClient.getInstance().getFramebuffer());
             PaleUniformsEvent.getFramebufferPar2().copyDepthFrom(MinecraftClient.getInstance().getFramebuffer());
             PaleUniformsEvent.getFramebufferPar().copyDepthFrom(MinecraftClient.getInstance().getFramebuffer());
 
             MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
         });
         EntitiesPreRenderCallback.EVENT.register((camera, frustum, tickDelta) -> {
+
             PaleUniformsEvent.getFramebuffer().clear(true);
             PaleUniformsEvent.getFramebufferPar().clear(true);
             PaleUniformsEvent.getFramebufferPar2().clear(true);
@@ -233,6 +237,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
     private static final Uniform1f uniformSTime = VITRIC.findUniform1f("STime");
 
     static {
+
         VOIDPAR_PROGRAM= ShaderEffectManager.getInstance().manage(ExecutiveOrders.id("shaders/post/voidpar.json"), shader ->{
             shader.setSamplerUniform("DepthSampler", ((ReadableDepthFramebuffer)MinecraftClient.getInstance().getFramebuffer()).getStillDepthMap());
         });
@@ -250,6 +255,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
         voidSampler = VOIDPAR_PROGRAM.findSampler("ParSampler");
         voidSampler2 = VOIDPAR_PROGRAM.findSampler("ParSampler2");
         paleSampler2 = PALE_PROGRAM.findSampler("ActualSculkSampler");
+        paleSamplerDepth = PALE_PROGRAM.findSampler("SculkSamplerDepth");
         paleFadeIn = PALE_PROGRAM.findUniform1f("Fade");
         palebordFadeIn = PALEBORDER_PROGRAM.findUniform1f("Fade");
         paleTime = PALE_PROGRAM.findUniform1f("GameTime");

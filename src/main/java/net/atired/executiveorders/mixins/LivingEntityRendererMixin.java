@@ -55,7 +55,9 @@ public abstract class LivingEntityRendererMixin extends EntityRenderer<LivingEnt
     }
     @Inject(at = @At("TAIL"), method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V")
     private void renderTail(LivingEntity livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
-
+        if(livingEntity instanceof DepthsLivingEntityAccessor accessor && accessor.executiveOrders$isRadiant()) {
+            RenderSystem.setShaderColor(1, 1, 1, 1f);
+        }
     }
 
     @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V")

@@ -43,12 +43,9 @@ void main() {
     color.b *= 1.5;
     color.b = clamp(color.b,0,1);
     color.rgb = mix(overlayColor.rgb, color.rgb, overlayColor.a);
-    float yeah = sin(gl_FragCoord.y /32*pow(vertexDistance,0.5) + GameTime * 3.1415926535 * 1024.0 + cos(gl_FragCoord.x /16+ GameTime * 2048.0)/2);
-
-
-
-
+    float yeah = sin((gl_FragCoord.y-fract(gl_FragCoord.y/16)*16) /32*pow(vertexDistance,0.5) + GameTime * 3.1415926535 * 1024.0 + cos((gl_FragCoord.x-fract(gl_FragCoord.x/16)*16) /16+ GameTime * 2048.0)/2);
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+
     if(yeah>0.3){
         fragColor.a = clamp(fragColor.a-yeah*0.7,0,1);
     }

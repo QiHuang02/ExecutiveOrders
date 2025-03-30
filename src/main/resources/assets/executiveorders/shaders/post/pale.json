@@ -6,12 +6,24 @@
     {
       "name": "executiveorders:pale",
       "intarget": "minecraft:main",
-      "outtarget": "swap"
+      "outtarget": "swap",
+      "auxtargets": [
+        {
+          "name": "DiffuseDepthSampler",
+          "id": "minecraft:main:depth"
+        }
+      ]
     },
     {
       "name": "blit",
       "intarget": "swap",
-      "outtarget": "minecraft:main"
+      "outtarget": "minecraft:main",
+      "auxtargets": [
+        {
+          "name": "DiffuseDepthSampler",
+          "id": "minecraft:main:depth"
+        }
+      ]
     }
 
   ]
