@@ -19,7 +19,6 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
@@ -28,8 +27,6 @@ import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.SmeltingRecipe;
 import net.minecraft.recipe.input.SingleStackRecipeInput;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -45,42 +42,45 @@ public class ExecutiveOrders implements ModInitializer {
 
     @Override
     public void onInitialize() {
-
-        ItemsInit.register();
-        BlocksInit.register();
-        BlockEntityInit.initialize();
+        EOItemGroups.init();
+        EOItemsInit.register();
+        EOBlocksInit.register();
+        EOBlockEntityInit.initialize();
         ExecutiveOrdersRecipes.registerRecipes();
         EnchantmentEffectComponentTypesInit.init();
-        MobEffectsInit.init();
-        EntityTypeInit.init();
+        EOMobEffectsInit.init();
+        EOEntityTypeInit.init();
         EODataComponentTypeInit.init();
         ExecutiveOrdersEntityGeneration.addSpawns();
         EnchantmentInit.load();
         FeatureInit.init();
         BiomeModifInit.load();
-        ParticlesInit.registerParticles();
+        EOParticlesInit.registerParticles();
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(itemGroup -> {
-            itemGroup.add(ItemsInit.DIGGERSHARK);
-            itemGroup.add(ItemsInit.RIPPERSHARK);
+            itemGroup.add(EOItemsInit.DIGGERSHARK);
+            itemGroup.add(EOItemsInit.RIPPERSHARK);
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(itemGroup -> {
-            itemGroup.add(ItemsInit.PALE_PILE);
+            itemGroup.add(EOItemsInit.PALE_PILE);
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register(itemGroup -> {
-            itemGroup.add(BlocksInit.MONOLITH);
+            itemGroup.add(EOBlocksInit.MONOLITH);
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(itemGroup -> {
-            itemGroup.add(BlocksInit.BEDROCK_LEAVES);
+            itemGroup.add(EOBlocksInit.BEDROCK_LEAVES);
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(itemGroup -> {
-            itemGroup.add(BlocksInit.MONOLITH);
-            itemGroup.add(BlocksInit.VITRIC_CAMPFIRE);
+            itemGroup.add(EOBlocksInit.MONOLITH);
+            itemGroup.add(EOBlocksInit.VITRIC_CAMPFIRE);
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(itemGroup -> {
-            itemGroup.add(ItemsInit.SWORDFISH);
-            itemGroup.add(ItemsInit.WARPEDEFFIGY);
-            itemGroup.add(ItemsInit.HAUNTED_AXE);
+            itemGroup.add(EOItemsInit.SWORDFISH);
+            itemGroup.add(EOItemsInit.WARPEDEFFIGY);
+            itemGroup.add(EOItemsInit.HAUNTED_AXE);
         });
+        initEvents();
+    }
+    private void initEvents(){
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity,damageSource,damage)->{
             for (ItemStack stack : entity.getHandItems()) {
                 if(stack.getItem() instanceof WarpedEffigyItem){
@@ -98,11 +98,11 @@ public class ExecutiveOrders implements ModInitializer {
                             entity1.teleport(world,vec3d2.x,vec3d2.y,vec3d2.z, Set.of(),entity1.getYaw(),entity1.getPitch());
                             entity1.teleport(entity1.getParticleX(15),entity1.getRandomBodyY(),entity1.getParticleZ(15),true);
                         }
-                        user.getServerWorld().spawnParticles(ParticlesInit.EFFIGY_PARTICLE,user.getX(),user.getBodyY(0.5),user.getZ(),1,0,0,0,0);
+                        user.getServerWorld().spawnParticles(EOParticlesInit.EFFIGY_PARTICLE,user.getX(),user.getBodyY(0.5),user.getZ(),1,0,0,0,0);
                         user.teleport(world,vec3d2.x,vec3d2.y,vec3d2.z,user.getYaw(),user.getPitch());
                         user.teleport(user.getParticleX(10),user.getRandomBodyY(),user.getParticleZ(10),true);
                         user.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION,  30, 4));
-                        spawn2Particles(user.getServerWorld(),ParticlesInit.EFFIGY_PARTICLE,user.getX(),user.getBodyY(0.5),user.getZ(),1,0,0,0,0);
+                        spawn2Particles(user.getServerWorld(), EOParticlesInit.EFFIGY_PARTICLE,user.getX(),user.getBodyY(0.5),user.getZ(),1,0,0,0,0);
                     }
                     return false;
                 }

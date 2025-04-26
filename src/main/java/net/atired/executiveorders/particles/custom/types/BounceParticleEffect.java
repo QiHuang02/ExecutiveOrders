@@ -2,7 +2,7 @@ package net.atired.executiveorders.particles.custom.types;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.atired.executiveorders.init.ParticlesInit;
+import net.atired.executiveorders.init.EOParticlesInit;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -46,7 +46,7 @@ public class BounceParticleEffect implements ParticleEffect {
 
 
     public ParticleType<BounceParticleEffect> getType() {
-        return ParticlesInit.HAUNTED_BOUNCE_PARTICLE;
+        return EOParticlesInit.HAUNTED_BOUNCE_PARTICLE;
     }
 
     public String asString() {

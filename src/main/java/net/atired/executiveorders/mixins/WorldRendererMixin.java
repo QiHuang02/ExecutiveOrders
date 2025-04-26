@@ -7,6 +7,7 @@ import net.atired.executiveorders.accessors.DepthsLivingEntityAccessor;
 import net.atired.executiveorders.client.event.PaleUniformsEvent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
@@ -14,10 +15,13 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.BlockRenderView;
+import net.minecraft.world.Heightmap;
+import net.minecraft.world.LightType;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionTypes;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -36,6 +40,7 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 @Mixin(WorldRenderer.class)
 public abstract class WorldRendererMixin {
+    private static final Identifier SNOW = Identifier.ofVanilla("textures/environment/snow.png");
     @Shadow private @Nullable VertexBuffer lightSkyBuffer;
     @Shadow private @Nullable ClientWorld world;
 
@@ -48,6 +53,20 @@ public abstract class WorldRendererMixin {
     @Shadow protected abstract boolean canDrawEntityOutlines();
 
     @Shadow @Final private BufferBuilderStorage bufferBuilders;
+    @Shadow private int ticks;
+    @Shadow @Final private float[] NORMAL_LINE_DX;
+    @Shadow @Final private float[] NORMAL_LINE_DZ;
+
+    @Unique
+    private static int getLightmapCoordinates(BlockRenderView world, BlockPos pos) {
+        return getLightmapCoordinates(world, world.getBlockState(pos), pos);
+    }
+
+    @Unique
+    private static int getLightmapCoordinates(BlockRenderView world, BlockState state, BlockPos pos) {
+        return 15728880;
+    }
+
     @Unique
     private final List<Integer> entityList = new ArrayList<Integer>();
     private static final Identifier NETHER_SKY = ExecutiveOrders.id("textures/misc/monolith.png");
@@ -136,13 +155,14 @@ public abstract class WorldRendererMixin {
             matrices.push();
             Matrix4f matrix4f = matrices.peek().getPositionMatrix();
             int mult = (i%2==0 ? -1 : 1);
+            float offset = (float) Math.cos(client.world.getTime()/16f+i);
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees((client.world.getTime()*7/(i+3f)+i*60)*mult));
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0f));
             BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-            bufferBuilder.vertex(matrix4f, -5.0f-i*2f, -6.0f+i/4f, -5.0f-i*2f).texture(0.0f, 0.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
-            bufferBuilder.vertex(matrix4f, -5.0f-i*2f, -6.0f+i/4f, 5.0f+i*2f).texture(0.0f, 1.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
-            bufferBuilder.vertex(matrix4f, 5.0f+i*2f, -6.0f+i/4f, 5.0f+i*2f).texture(1.0f, 1.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
-            bufferBuilder.vertex(matrix4f, 5.0f+i*2f, -6.0f+i/4f, -5.0f-i*2f).texture(1.0f, 0.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
+            bufferBuilder.vertex(matrix4f, -5.0f-i*2f, -6.0f+i/4f+offset, -5.0f-i*2f).texture(0.0f, 0.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
+            bufferBuilder.vertex(matrix4f, -5.0f-i*2f, -6.0f+i/4f+offset, 5.0f+i*2f).texture(0.0f, 1.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
+            bufferBuilder.vertex(matrix4f, 5.0f+i*2f, -6.0f+i/4f+offset, 5.0f+i*2f).texture(1.0f, 1.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
+            bufferBuilder.vertex(matrix4f, 5.0f+i*2f, -6.0f+i/4f+offset, -5.0f-i*2f).texture(1.0f, 0.0f).color(ColorHelper.Argb.getArgb(255*(5-i)/6,255,255,255));
             BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
             matrices.pop();
         }
@@ -197,6 +217,116 @@ public abstract class WorldRendererMixin {
     }
     @Inject(method = "renderWeather", at = @At("HEAD"))
     private void notRenderEndAtTheEmdSky(LightmapTextureManager manager, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci){
+        float f = this.client.world.getRainGradient(tickDelta);
+        if (!(f <= 0.0F) && MinecraftClient.getInstance().player.getPos().length()>9000&&MinecraftClient.getInstance().player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END) {
+            manager.enable();
+            World world = this.client.world;
+            int i = MathHelper.floor(cameraX);
+            int j = MathHelper.floor(cameraY);
+            int k = MathHelper.floor(cameraZ);
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder bufferBuilder = null;
+            RenderSystem.disableCull();
+            RenderSystem.enableBlend();
+            RenderSystem.enableDepthTest();
+            int l = 10;
+            if (MinecraftClient.isFancyGraphicsOrBetter()) {
+                l = 15;
+            }
+
+            RenderSystem.depthMask(MinecraftClient.isFabulousGraphicsOrBetter());
+            int m = -1;
+            float g = (float)this.ticks + tickDelta;
+            RenderSystem.setShader(GameRenderer::getParticleProgram);
+            BlockPos.Mutable mutable = new BlockPos.Mutable();
+
+            for (int n = k - l; n <= k + l; n++) {
+                for (int o = i - l; o <= i + l; o++) {
+                    int p = (n - k + 16) * 32 + o - i + 16;
+                    double d = (double)this.NORMAL_LINE_DX[p] * 0.5;
+                    double e = (double)this.NORMAL_LINE_DZ[p] * 0.5;
+                    mutable.set((double)o, cameraY, (double)n);
+                        float a1= (float) (Math.abs(n - k)) /l*2f;
+                        float a2= (float) (Math.abs(o- i)) /l*2f;
+                        int q = world.getTopY(Heightmap.Type.MOTION_BLOCKING, o, n);
+                        float r2 = (float) (-l);
+                        float s2 = (float) ( l);
+                    float r = (float) (cameraY - l);
+                    float s = (float) (cameraY + l);
+                        if (r < q) {
+                            r = q;
+                        }
+
+                        if (s < q) {
+                            s = q;
+                        }
+
+
+                        int t = q;
+                        if (q < j) {
+                            t = j;
+                        }
+
+                        if (r != s && q < 20) {
+                            Random random = Random.create((long)(o * o * 3121 + o * 45238971 ^ n * n * 418711 + n * 13761));
+                            mutable.set(o, r, n);
+
+
+                                if (m != 1) {
+                                    if (m >= 0) {
+                                        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+                                    }
+
+                                    m = 1;
+                                    RenderSystem.setShaderTexture(0, SNOW);
+                                    bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR_LIGHT);
+                                }
+
+                                float ad = ((float)(this.ticks & 511) + tickDelta) / 64.0f;
+                                float ae = (float)(random.nextDouble() + (double)g * 0.01 * (double)((float)random.nextGaussian()));
+                                float h = (float)(random.nextDouble() + (double)(g * (float)random.nextGaussian()) * 0.001);
+                                double af = (double)o + 0.5 - cameraX;
+                                double y = (double)n + 0.5 - cameraZ;
+                                float ag = (float)Math.sqrt(af * af + y * y) / (float)l;
+                                float ah = ((1.0F - ag * ag) * 0.3F + 0.5F) * f;
+                                mutable.set(o, t, n);
+                                int ai = getLightmapCoordinates(world, mutable);
+                                int aj = ai >> 16 & (LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE | 65295);
+                                int ac = ai & (LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE | 65295);
+                                int ak = (aj * 3 + LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE) / 4;
+                                int al = (ac * 3 + LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE) / 4;
+                                bufferBuilder.vertex((float)((double)o - cameraX - d + 0.5), (float)((double)s - cameraY), (float)((double)n - cameraZ - e + 0.5))
+                                        .texture(0.0F + ae/4, (float) (r2 * 0.25F/4f + ad + h-cameraY/8f))
+                                        .color(1.0F, 1.0F, 1.0F, 0)
+                                        .light(al, ak);
+                                bufferBuilder.vertex((float)((double)o - cameraX + d + 0.5), (float)((double)s - cameraY), (float)((double)n - cameraZ + e + 0.5))
+                                        .texture((1.0F + ae)/4, (float) (r2 * 0.25F/4f + ad + h-cameraY/8f))
+                                        .color(1.0F, 1.0F, 1.0F, 0)
+                                        .light(al, ak);
+                            float clamp = Math.clamp(ah * (a1 + a2), 0, 1);
+                            bufferBuilder.vertex((float)((double)o - cameraX + d + 0.5), (float)((double)r - cameraY), (float)((double)n - cameraZ + e + 0.5))
+                                        .texture((float) ((1.0F + ae)/4+Math.sin(((float)(this.ticks & 511) + tickDelta)/16)), (float) (s2 * 0.25F/4f + ad + h-cameraY/8f))
+                                        .color(1.0F, 1.0F, 1.0F, clamp)
+                                        .light(al, ak);
+                                bufferBuilder.vertex((float)((double)o - cameraX - d + 0.5), (float)((double)r - cameraY), (float)((double)n - cameraZ - e + 0.5))
+                                        .texture((float) ((0.0F + ae)/4+Math.sin(((float)(this.ticks & 511) + tickDelta)/16)), (float) (s2 * 0.25F/4f + ad + h-cameraY/8f))
+                                        .color(1.0F, 1.0F, 1.0F, clamp)
+                                        .light(al, ak);
+
+                        }
+
+                }
+            }
+
+            if (m >= 0) {
+                BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+            }
+
+            RenderSystem.enableCull();
+            RenderSystem.disableBlend();
+            manager.disable();
+        }
+
 //        if(MinecraftClient.getInstance().player.getPos().length()>9000&&MinecraftClient.getInstance().player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END)
 //        {
 //                manager.enable();
@@ -245,6 +375,7 @@ public abstract class WorldRendererMixin {
         if(MinecraftClient.getInstance().player.getPos().length()>9000)
         {
             Vector3f color = new Vector3f(1f,1f,1f);
+
             RenderSystem.enableBlend();
             float pos = (float) MinecraftClient.getInstance().cameraEntity.getPos().y;
             float alpha = (float) Math.clamp((MinecraftClient.getInstance().player.getPos().length()-9000f)/50f,0f,1f);
@@ -252,7 +383,7 @@ public abstract class WorldRendererMixin {
             RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
             RenderSystem.setShaderTexture(0, FOG_SKY);
             Tessellator tessellator = Tessellator.getInstance();
-            for (int i = 0; i < 6; ++i) {
+            for (int i = 1; i < 6; ++i) {
                 matrices.push();
                 float timex = (float) Math.sin((double) MinecraftClient.getInstance().world.getTimeOfDay()/16+i)*9;
                 float timez = (float) Math.cos((double) MinecraftClient.getInstance().world.getTimeOfDay()/16+i)*9;
@@ -265,7 +396,7 @@ public abstract class WorldRendererMixin {
                 BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
                 matrices.pop();
             }
-            for (int i = 0; i < 6; ++i) {
+            for (int i = 1; i < 6; ++i) {
                 matrices.push();
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0f));
                 float timex = (float) Math.sin((double) MinecraftClient.getInstance().world.getTimeOfDay()/16+i)*9;

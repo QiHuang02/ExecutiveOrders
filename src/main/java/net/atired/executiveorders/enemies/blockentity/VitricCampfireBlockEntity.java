@@ -1,18 +1,14 @@
 package net.atired.executiveorders.enemies.blockentity;
 
 import net.atired.executiveorders.blocks.VitricCampfireBlock;
-import net.atired.executiveorders.init.BlockEntityInit;
+import net.atired.executiveorders.init.EOBlockEntityInit;
 import net.atired.executiveorders.init.EODataComponentTypeInit;
-import net.atired.executiveorders.init.ParticlesInit;
-import net.atired.executiveorders.recipe.ExecutiveOrdersRecipes;
+import net.atired.executiveorders.init.EOParticlesInit;
 import net.atired.executiveorders.recipe.VitrifiedRecipe;
-import net.atired.executiveorders.recipe.VoidtouchedRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.CampfireBlockEntity;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ContainerComponent;
@@ -23,11 +19,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.recipe.CampfireCookingRecipe;
 import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeManager;
-import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.input.SingleStackRecipeInput;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Clearable;
@@ -51,7 +44,7 @@ public class VitricCampfireBlockEntity extends BlockEntity implements Clearable 
     private final int[] cookingTotalTimes = new int[4];
     private final RecipeManager.MatchGetter<SingleStackRecipeInput, VitrifiedRecipe> matchGetter = RecipeManager.createCachedMatchGetter(VitrifiedRecipe.Type.INSTANCE);
     public VitricCampfireBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, pos, state);
+        super(EOBlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, pos, state);
     }
 
     public static void litServerTick(World world, BlockPos pos, BlockState state, VitricCampfireBlockEntity campfire) {
@@ -132,7 +125,7 @@ public class VitricCampfireBlockEntity extends BlockEntity implements Clearable 
                         + (double)((float)direction.rotateYClockwise().getOffsetZ() * 0.3125F);
 
                 for (int k = 0; k < 4; k++) {
-                    world.addParticle(ParticlesInit.SMALL_VOID_PARTICLE, d, e, g, 0.0, 5.0E-4, 0.0);
+                    world.addParticle(EOParticlesInit.SMALL_VOID_PARTICLE, d, e, g, 0.0, 5.0E-4, 0.0);
                 }
             }
         }

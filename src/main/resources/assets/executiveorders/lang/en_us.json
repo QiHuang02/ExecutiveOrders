@@ -10,6 +10,8 @@
   "block.executiveorders.bedrock_leaves": "§kBedrock §rLeaves",
   "entity.executiveorders.vitrified": "Vitrified",
   "effect.executiveorders.phasing": "Phasing ",
+  "itemgroup.executiveorders.executive_items":"Executive",
+
 
   "enchantment.executiveorders.arbalest": "Arbalest",
   "enchantment.executiveorders.arbalest.desc": "Upon fully charging the bow, release a much stronger and heavier bolt",

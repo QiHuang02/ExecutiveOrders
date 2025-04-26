@@ -9,7 +9,7 @@ import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
-public class EntityTypeInit {
+public class EOEntityTypeInit {
 
     public static final EntityType<VitrifiedEntity> VITRIFIED = EntityType.Builder.create(VitrifiedEntity::new, SpawnGroup.MONSTER).dimensions(EntityType.SKELETON.getWidth(), EntityType.SKELETON.getHeight()).build();
     public static final EntityType<JauntEntity> JAUNT = EntityType.Builder.create(JauntEntity::new, SpawnGroup.MONSTER).dimensions(EntityType.ZOMBIE.getWidth(), EntityType.ZOMBIE.getHeight()).build();

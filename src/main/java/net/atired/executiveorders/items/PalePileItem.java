@@ -1,7 +1,10 @@
 package net.atired.executiveorders.items;
 
+import net.atired.executiveorders.client.tooltips.PalePileTooltipData;
+import net.atired.executiveorders.init.EODataComponentTypeInit;
 import net.atired.executiveorders.particles.custom.types.BounceParticleEffect;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.BundleContentsComponent;
 import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -10,6 +13,8 @@ import net.minecraft.item.BundleItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolItem;
+import net.minecraft.item.tooltip.BundleTooltipData;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ClickType;
@@ -20,6 +25,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PalePileItem extends Item{
     public PalePileItem(Settings settings) {
@@ -58,8 +64,12 @@ public class PalePileItem extends Item{
         {
             stack.damage(1,world1,null,this::dummy);
         }
-
         super.inventoryTick(stack, world, entity, slot, selected);
+    }
+
+    @Override
+    public Optional<TooltipData> getTooltipData(ItemStack stack) {
+        return Optional.of(new PalePileTooltipData(stack.get(DataComponentTypes.CONTAINER).stream().toList()));
     }
 
     private void dummy(Item item) {

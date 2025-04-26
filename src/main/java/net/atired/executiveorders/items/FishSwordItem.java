@@ -1,14 +1,12 @@
 package net.atired.executiveorders.items;
 
-import net.atired.executiveorders.init.ParticlesInit;
+import net.atired.executiveorders.init.EOParticlesInit;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.particle.ParticleTypes;
@@ -33,7 +31,7 @@ public class FishSwordItem extends SwordItem {
         {
             if(a!=attacker && world instanceof ServerWorld world1)
             {
-                world1.spawnParticles(ParticlesInit.SPLISH_PARTICLE,a.getX(),a.getBodyY(0f),a.getZ(),1,0,0,0,0);
+                world1.spawnParticles(EOParticlesInit.SPLISH_PARTICLE,a.getX(),a.getBodyY(0f),a.getZ(),1,0,0,0,0);
                 world1.spawnParticles(ParticleTypes.SPLASH,a.getX(),a.getBodyY(0.5f),a.getZ(),4,0.4,0.8,0.4,0.01);
                 a.addVelocity(0,0.9,0);
             }

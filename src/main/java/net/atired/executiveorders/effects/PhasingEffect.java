@@ -1,17 +1,13 @@
 package net.atired.executiveorders.effects;
 
-import net.atired.executiveorders.accessors.LivingEntityAccessor;
-import net.atired.executiveorders.init.MobEffectsInit;
+import net.atired.executiveorders.init.EOMobEffectsInit;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.AttributeContainer;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.TeleportTarget;
 
 public class PhasingEffect extends StatusEffect {
     public PhasingEffect() {
@@ -53,14 +49,14 @@ public class PhasingEffect extends StatusEffect {
             if (entity.isInsideWall())
             {
                 pos = pos.add(0,-0.04,0);
-                StatusEffectInstance inst = entity.getStatusEffect(MobEffectsInit.PHASING_EFFECT);
-                inst = new StatusEffectInstance(MobEffectsInit.PHASING_EFFECT, inst.getDuration()+1, inst.getAmplifier(),inst.isAmbient(),inst.shouldShowParticles(),inst.shouldShowIcon());
+                StatusEffectInstance inst = entity.getStatusEffect(EOMobEffectsInit.PHASING_EFFECT);
+                inst = new StatusEffectInstance(EOMobEffectsInit.PHASING_EFFECT, inst.getDuration()+1, inst.getAmplifier(),inst.isAmbient(),inst.shouldShowParticles(),inst.shouldShowIcon());
                 entity.addStatusEffect(inst);
             }
             else if(entity.getY()<120){
                 entity.setVelocity(entity.getVelocity().multiply(0.9));
-                StatusEffectInstance inst = entity.getStatusEffect(MobEffectsInit.PHASING_EFFECT);
-                inst = new StatusEffectInstance(MobEffectsInit.PHASING_EFFECT, inst.getDuration()-1, inst.getAmplifier(),inst.isAmbient(),inst.shouldShowParticles(),inst.shouldShowIcon());
+                StatusEffectInstance inst = entity.getStatusEffect(EOMobEffectsInit.PHASING_EFFECT);
+                inst = new StatusEffectInstance(EOMobEffectsInit.PHASING_EFFECT, inst.getDuration()-1, inst.getAmplifier(),inst.isAmbient(),inst.shouldShowParticles(),inst.shouldShowIcon());
                 entity.addStatusEffect(inst);
             }
             entity.noClip = true;

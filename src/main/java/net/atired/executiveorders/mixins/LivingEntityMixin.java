@@ -7,14 +7,13 @@ import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatArrays;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import net.atired.executiveorders.accessors.LivingEntityAccessor;
-import net.atired.executiveorders.init.ParticlesInit;
+import net.atired.executiveorders.init.EOParticlesInit;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -165,7 +164,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
                     this.damage(lastDamageSource,getHealth()*2);
                     if(getWorld() instanceof ServerWorld servo)
                     {
-                        servo.spawnParticles(ParticlesInit.EXECUTE_PARTICLE,getEyePos().x,getEyePos().y,getEyePos().z,1,0,0,0,0);
+                        servo.spawnParticles(EOParticlesInit.EXECUTE_PARTICLE,getEyePos().x,getEyePos().y,getEyePos().z,1,0,0,0,0);
                     }
                 }
             }

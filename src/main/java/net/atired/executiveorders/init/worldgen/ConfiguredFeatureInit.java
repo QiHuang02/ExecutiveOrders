@@ -11,11 +11,13 @@ import net.minecraft.world.gen.feature.FeatureConfig;
 
 public class ConfiguredFeatureInit {
     public static final RegistryKey<ConfiguredFeature<?, ?>> BEDROCK_PILLARS = registerKey("bedrock_pillars");
+    public static final RegistryKey<ConfiguredFeature<?, ?>> VOID_PILLARS = registerKey("void_pillars");
     private static RegistryKey<ConfiguredFeature<?, ?>> registerKey(String name) {
         return RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, ExecutiveOrders.id(name));
     }
     public static void bootstrap(Registerable<ConfiguredFeature<?, ?>> context) {
         register(context, BEDROCK_PILLARS,FeatureInit.BEDROCK_PILLARS,new DefaultFeatureConfig());
+        register(context, VOID_PILLARS,FeatureInit.VOID_PILLARS,new DefaultFeatureConfig());
     }
     private static <FC extends FeatureConfig, F extends Feature<FC>> void register(Registerable<ConfiguredFeature<?, ?>> context,
                                                                                    RegistryKey<ConfiguredFeature<?, ?>> key,

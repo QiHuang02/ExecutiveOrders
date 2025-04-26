@@ -12,6 +12,7 @@
     "ProjectileEntityMixin",
     "RangedWeaponItemMixin",
     "TheRoofPlayerEntityMixin",
+    "deeprelated.DepthsAbstractSkeletonMixin",
     "deeprelated.DepthsCreeperMixin",
     "deeprelated.DepthsLivingEntityMixin",
     "deeprelated.DepthsMobEntityMixin",

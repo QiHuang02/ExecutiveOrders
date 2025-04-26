@@ -226,7 +226,7 @@ void main() {
             frag1 =texture(ActualSculkSampler,vec2(fract(tex1-fract(tex1*64)/64),fract(tex2-fract(tex2*64)/64)))*0.3
             +texture(ActualSculkSampler,vec2(fract(tex3-fract(tex3*64)/64),fract(tex4-fract(tex4*64)/64)))*0.7;
             frag1*=vec4(0.6,0.8,1,1)*clamp(((noisy-0.45)*7-0.5),0,1);
-            if(length(texture(SculkSampler,texCoord).xyz)>0.2){
+            if(length(texture(SculkSampler,texCoord).xyz)>0.33){
                 frag1 = vec4(0.4,0.55,0.8,1);
             }
             if(noisy3>=noisy){

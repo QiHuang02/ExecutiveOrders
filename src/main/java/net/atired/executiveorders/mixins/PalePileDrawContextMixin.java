@@ -2,7 +2,7 @@ package net.atired.executiveorders.mixins;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.atired.executiveorders.init.EODataComponentTypeInit;
-import net.atired.executiveorders.init.ItemsInit;
+import net.atired.executiveorders.init.EOItemsInit;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.DiffuseLighting;
@@ -98,9 +98,9 @@ public abstract class PalePileDrawContextMixin {
 
         @Inject(method = "Lnet/minecraft/client/gui/DrawContext;drawItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;IIII)V",at=@At("TAIL"),cancellable = true)
     private void drawPaleItem(LivingEntity entity, World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci){
-        if(stack.getItem() == ItemsInit.PALE_PILE&&stack.get(DataComponentTypes.CONTAINER)!=null){
+        if(stack.getItem() == EOItemsInit.PALE_PILE&&stack.get(DataComponentTypes.CONTAINER)!=null){
             ContainerComponent containerComponent = (ContainerComponent) stack.get(DataComponentTypes.CONTAINER);
-            if(this.client.player!=null&&containerComponent.streamNonEmpty().count()>0&&containerComponent.streamNonEmpty().toList().getFirst().getItem()!=ItemsInit.PALE_PILE)
+            if(this.client.player!=null&&containerComponent.streamNonEmpty().count()>0&&containerComponent.streamNonEmpty().toList().getFirst().getItem()!= EOItemsInit.PALE_PILE)
             {
 
                 Quaternionf quaternionf2 = new Quaternionf();

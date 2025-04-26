@@ -2,8 +2,7 @@ package net.atired.executiveorders.blocks;
 
 import com.mojang.serialization.MapCodec;
 import net.atired.executiveorders.enemies.blockentity.MonolithBlockEntity;
-import net.atired.executiveorders.init.BlockEntityInit;
-import net.atired.executiveorders.networking.payloads.ExecutePayload;
+import net.atired.executiveorders.init.EOBlockEntityInit;
 import net.atired.executiveorders.networking.payloads.MonolithPayload;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -11,21 +10,15 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.enums.DoorHinge;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.client.render.block.entity.ChestBlockEntityRenderer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class MonolithBlock extends BlockWithEntity {
@@ -45,6 +38,7 @@ public class MonolithBlock extends BlockWithEntity {
     @Override
     protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
         boolean bl = false;
+
         boolean bl2 = world.isReceivingRedstonePower(pos);
         if (!this.getDefaultState().isOf(sourceBlock)&&bl2 !=isPowered(state)) {
             MonolithBlockEntity monolithBlock = ((MonolithBlockEntity) world.getBlockEntity(pos));
@@ -93,7 +87,7 @@ public class MonolithBlock extends BlockWithEntity {
     @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return MonolithBlock.validateTicker(world, type, BlockEntityInit.MONOLITH_ENTITY_TYPE);
+        return MonolithBlock.validateTicker(world, type, EOBlockEntityInit.MONOLITH_ENTITY_TYPE);
     }
     @Nullable
     protected static <T extends BlockEntity> BlockEntityTicker<T> validateTicker(World world, BlockEntityType<T> givenType, BlockEntityType<? extends MonolithBlockEntity> expectedType) {

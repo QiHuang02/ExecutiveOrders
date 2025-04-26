@@ -1,3 +1,5 @@
-// 1.21.1	2025-01-30T17:54:40.4969594	ExecutiveOrders/World Generator
+// 1.21.1	2025-04-11T16:07:31.1501094	ExecutiveOrders/World Generator
+fa85223576237ecccea4947b0d974ed1e207777a data\executiveorders\worldgen\configured_feature\void_pillars.json
 157cbe497aaf302cbd9eeb51c87ff947583f705e data\executiveorders\worldgen\placed_feature\bedrock_pillars.json
 46468aae090be129fd3315a24472a5e5215aae29 data\executiveorders\worldgen\configured_feature\bedrock_pillars.json
+362c0e72fde51dc16ac521d4f2fa25ad786d2cf6 data\executiveorders\worldgen\placed_feature\void_pillars.json

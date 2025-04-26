@@ -3,13 +3,11 @@ package net.atired.executiveorders.particles.custom.types;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.atired.executiveorders.init.ParticlesInit;
+import net.atired.executiveorders.init.EOParticlesInit;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.particle.AbstractDustParticleEffect;
-import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.registry.Registries;
@@ -49,7 +47,7 @@ public class SlashParticleEffect implements ParticleEffect {
 
 
     public ParticleType<SlashParticleEffect> getType() {
-        return ParticlesInit.HAUNTED_SLASH_PARTICLE;
+        return EOParticlesInit.HAUNTED_SLASH_PARTICLE;
     }
 
     public String asString() {

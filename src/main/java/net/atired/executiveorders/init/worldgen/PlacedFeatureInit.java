@@ -16,6 +16,7 @@ import java.util.List;
 
 public class PlacedFeatureInit {
     public static final RegistryKey<PlacedFeature> BEDROCK_PILLARS_KEY = registerKey("bedrock_pillars");
+    public static final RegistryKey<PlacedFeature> VOID_PILLARS_KEY = registerKey("void_pillars");
     private static RegistryKey<PlacedFeature> registerKey(String name) {
         return RegistryKey.of(RegistryKeys.PLACED_FEATURE, ExecutiveOrders.id(name));
     }
@@ -24,6 +25,9 @@ public class PlacedFeatureInit {
         register(context, BEDROCK_PILLARS_KEY, registryLookup.getOrThrow(ConfiguredFeatureInit.BEDROCK_PILLARS),
                 Modifiers.modifiersCount(63,
                         HeightmapPlacementModifier.of(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES)));
+        register(context, VOID_PILLARS_KEY, registryLookup.getOrThrow(ConfiguredFeatureInit.VOID_PILLARS),
+                Modifiers.modifiersCount(2,
+                        HeightRangePlacementModifier.uniform(YOffset.BOTTOM,YOffset.BOTTOM)));
 
     }
 

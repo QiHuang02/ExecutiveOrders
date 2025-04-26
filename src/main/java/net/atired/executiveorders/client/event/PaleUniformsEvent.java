@@ -6,7 +6,7 @@ import net.atired.executiveorders.ExecutiveOrders;
 import net.atired.executiveorders.accessors.LivingEntityAccessor;
 import net.atired.executiveorders.client.ExecutiveOrdersClient;
 import net.atired.executiveorders.client.layers.ExecutiveRenderLayers;
-import net.atired.executiveorders.init.MobEffectsInit;
+import net.atired.executiveorders.init.EOMobEffectsInit;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
@@ -25,6 +25,7 @@ import java.util.SequencedMap;
 public class PaleUniformsEvent implements ShaderEffectRenderCallback {
     private static Framebuffer framebuffer;
     private static final Identifier MONOLITH = ExecutiveOrders.id("textures/block/vitric_fire2.png");
+    private static final Identifier FOG_SKY = ExecutiveOrders.id("textures/misc/ruhroh.png");
     public static Framebuffer getFramebuffer() {
         if (framebuffer == null) {
             framebuffer = new SimpleFramebuffer(MinecraftClient.getInstance().getFramebuffer().viewportWidth, MinecraftClient.getInstance().getFramebuffer().viewportHeight,true,false);
@@ -61,6 +62,7 @@ public class PaleUniformsEvent implements ShaderEffectRenderCallback {
     public static VertexConsumerProvider.Immediate createDarkImmediate() {
         if (darkImmediate == null) {
             SequencedMap<RenderLayer, BufferAllocator> buffers = new Object2ObjectLinkedOpenHashMap<>();
+            buffers.put(RenderLayer.getEntityTranslucent(MONOLITH), new BufferAllocator(RenderLayer.getEntityTranslucent(FOG_SKY).getExpectedBufferSize()));
             buffers.put(RenderLayer.getEntityTranslucent(MONOLITH), new BufferAllocator(RenderLayer.getEntityTranslucent(MONOLITH).getExpectedBufferSize()));
             darkImmediate = VertexConsumerProvider.immediate(buffers,new BufferAllocator(256));
         }
@@ -103,9 +105,9 @@ public class PaleUniformsEvent implements ShaderEffectRenderCallback {
                 getFramebuffer().endRead();
 
             }
-            if(client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_NETHER && client.player.getPos().y>123){
-
-                ExecutiveOrdersClient.renderRoofProgram(0);
+            if((client.player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_NETHER && client.player.getPos().y>123) || (client.player.hasStatusEffect(EOMobEffectsInit.PHASING_EFFECT)&&!client.player.getBlockStateAtPos().isAir())){
+                ExecutiveOrdersClient.roofTime.set(((MinecraftClient.getInstance().world.getTime()+v)/24000f));
+                ExecutiveOrdersClient.renderRoofProgram(v);
             }
             getFramebufferPar().beginRead();
             ExecutiveOrdersClient.voidSampler2.set(getFramebufferPar2()::getColorAttachment);
@@ -114,7 +116,7 @@ public class PaleUniformsEvent implements ShaderEffectRenderCallback {
             getFramebufferPar().endRead();
         }
         else{
-            ExecutiveOrdersClient.setPaleFadeIn(0);
+            ExecutiveOrdersClient.setPaleFadeIn(v);
         }
 
     }

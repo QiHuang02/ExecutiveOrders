@@ -125,7 +125,7 @@ void main() {
     if(Color.a<0.05){
         texCoord0 = UV0;
         vertexColor = vec4(0,0,0,0);
-        gl_Position = ProjMat * ModelViewMat * vec4(pos, 2);
+        gl_Position = ProjMat * ModelViewMat * vec4(pos, 10);
     }
     else{
         texCoord0 = UV0;

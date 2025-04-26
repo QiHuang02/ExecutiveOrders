@@ -21,7 +21,7 @@ public abstract class TheRoofPlayerEntityMixin extends LivingEntity {
     @Inject(method = "tick",at=@At("HEAD"))
     private void tickSpeeded(CallbackInfo ci){
         if(this.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_NETHER &&this.getPos().y>123){
-            this.setVelocity(this.getVelocity().multiply(1.03));
+            this.setVelocity(this.getVelocity().multiply(1.01));
         }
     }
 }

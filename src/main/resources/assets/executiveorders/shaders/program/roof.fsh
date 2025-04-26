@@ -125,7 +125,9 @@ void main() {
     hueCol.z *= 1-pow(clamp(origDist/1000,0,1),0.8);
     col.xyz = hsv2rgb(hueCol);
     col.a = max(1-distance/32,0);
-    col*=clamp(pow((1-abs(texCopy.y-0.5)*2)*(1-abs(texCopy.x-0.5)*2),0.5)+0.3+(-cos(texCoord.x)-sin(texCoord.y))/10,0,1);
+    vec2 texCopy2=(texCoord - fract(texCoord*InSize/16)/InSize*16);
+    float center=pow((1-abs(texCopy2.y-0.5)*2)*(1-abs(texCopy2.x-0.5)*2),0.5)+abs(cnoise(vec3((texCoord - fract(texCoord*InSize/16)/InSize*16)*12,GameTime*800)))/1.2;
+    col*=(clamp(center+0.31,0,1));
     fragColor = col/distance;
 
 

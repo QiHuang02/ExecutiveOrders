@@ -1,14 +1,15 @@
 package net.atired.executiveorders.worldgen.features;
 
 import com.mojang.serialization.Codec;
-import net.atired.executiveorders.init.BlocksInit;
+import net.atired.executiveorders.init.EOBlocksInit;
 import net.atired.executiveorders.misc.EOgetDatNoise;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.util.FeatureContext;
@@ -39,6 +40,20 @@ public class BedrockPillarFeature
                 structureWorldAccess.setBlockState(blockPos1, Blocks.BEDROCK.getDefaultState(), Block.NOTIFY_LISTENERS);
                 blockPos1 = blockPos1.move(Direction.UP);
             }
+            if(Math.random()>0.8&&amount>40&&!leaves){
+                BlockPos.Mutable blockPos3 = blockPos2.mutableCopy();
+                for (int x = -2; x <= 2; x++) {
+                    for (int z = -2; z <= 2; z++) {
+                        blockPos3 = blockPos3.set(blockPos2.getX()+x,blockPos2.getY()+amount,+blockPos2.getZ()+z);
+                        int i = Math.abs(x) + Math.abs(z);
+                        if(structureWorldAccess.getBlockState(blockPos3).isAir() && i <4){
+                            structureWorldAccess.setBlockState(blockPos3, Blocks.BEDROCK.getDefaultState(), Block.NOTIFY_LISTENERS);
+
+                        }
+
+                    }
+                }
+            }
             if(leaves){
                 blockPos2 = blockPos2.move(0,10,0);
                 for(int i = 0; i < amount-10; i++){
@@ -50,7 +65,7 @@ public class BedrockPillarFeature
                             for (int z = -1; z <= 1; z++) {
                                 blockPos3 = blockPos3.set(vec3d.getX()+blockPos2.getX()+x,vec3d.getY()+blockPos2.getY()+y,vec3d.getZ()+blockPos2.getZ()+z);
                                 if(structureWorldAccess.getBlockState(blockPos3).isAir())
-                                    structureWorldAccess.setBlockState(blockPos3, BlocksInit.BEDROCK_LEAVES.getDefaultState(), Block.NOTIFY_LISTENERS);
+                                    structureWorldAccess.setBlockState(blockPos3, EOBlocksInit.BEDROCK_LEAVES.getDefaultState(), Block.NOTIFY_LISTENERS);
 
                             }
                         }

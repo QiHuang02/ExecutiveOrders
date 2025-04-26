@@ -1,6 +1,6 @@
 package net.atired.executiveorders.misc;
 
-import net.atired.executiveorders.init.ItemsInit;
+import net.atired.executiveorders.init.EOItemsInit;
 import net.minecraft.block.Block;
 import net.minecraft.item.Items;
 import net.minecraft.item.ToolMaterial;
@@ -38,6 +38,6 @@ public class HauntedAxeMaterial implements ToolMaterial {
 
     @Override
     public Ingredient getRepairIngredient() {
-        return Ingredient.ofItems(Items.IRON_INGOT, ItemsInit.PALE_PILE);
+        return Ingredient.ofItems(Items.IRON_INGOT, EOItemsInit.PALE_PILE);
     }
 }

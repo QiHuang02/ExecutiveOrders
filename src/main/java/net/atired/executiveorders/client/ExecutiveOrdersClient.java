@@ -20,25 +20,17 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.CoreShaderRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.particle.ParticleTextureSheet;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.block.entity.CampfireBlockEntityRenderer;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ColorCode;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.dimension.DimensionTypes;
 import org.ladysnake.satin.api.event.EntitiesPostRenderCallback;
 import org.ladysnake.satin.api.event.EntitiesPreRenderCallback;
 import org.ladysnake.satin.api.event.PostWorldRenderCallback;
@@ -85,26 +77,27 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
     public static final SamplerUniformV2 paleSampler2;
     private static final Uniform1f paleTime;
     public static final Uniform1f palebordTime;
+    public static final Uniform1f roofTime;
     private static final Uniform1f burnTime;
     private static final Uniform1f burnFadeIn;
     @Override
     public void onInitializeClient() {
 
         CoreShaderRegistrationCallback.EVENT.register(new CoreShaderRegistrationEvent());
-        BlockRenderLayerMap.INSTANCE.putBlock(BlocksInit.MONOLITH, RenderLayer.getCutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(BlocksInit.BEDROCK_LEAVES, RenderLayer.getCutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(BlocksInit.VITRIC_CAMPFIRE, RenderLayer.getCutout());
-        BlockEntityRendererRegistry.register(BlockEntityInit.MONOLITH_ENTITY_TYPE, MonolithBlockEntityRenderer::new);
-        BlockEntityRendererRegistry.register(BlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, VitricCampfireBlockEntityRenderer::new);
-        EntityRendererRegistry.INSTANCE.register(EntityTypeInit.VITRIFIED, VitrifiedRenderer::new);
-        EntityRendererRegistry.INSTANCE.register(EntityTypeInit.JAUNT, JauntRenderer::new);
-        ParticleFactoryRegistry.getInstance().register(ParticlesInit.SMALL_VOID_PARTICLE, SmallVoidParticle.Factory::new);
-        ParticleFactoryRegistry.getInstance().register(ParticlesInit.VOID_PARTICLE, VoidParticle.Factory::new);
-        ParticleFactoryRegistry.getInstance().register(ParticlesInit.EXECUTE_PARTICLE, ExecuteParticle.Factory::new);
-        ParticleFactoryRegistry.getInstance().register(ParticlesInit.EFFIGY_PARTICLE, EffigyParticle.Factory::new);
-        ParticleFactoryRegistry.getInstance().register(ParticlesInit.SPLISH_PARTICLE, SplishParticle.Factory::new);
-        ParticleFactoryRegistry.getInstance().register(ParticlesInit.HAUNTED_SLASH_PARTICLE, HauntedSlashParticle.Factory::new);
-        ParticleFactoryRegistry.getInstance().register(ParticlesInit.HAUNTED_BOUNCE_PARTICLE, HauntedBounceParticle.Factory::new);
+        BlockRenderLayerMap.INSTANCE.putBlock(EOBlocksInit.MONOLITH, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(EOBlocksInit.BEDROCK_LEAVES, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(EOBlocksInit.VITRIC_CAMPFIRE, RenderLayer.getCutout());
+        BlockEntityRendererRegistry.register(EOBlockEntityInit.MONOLITH_ENTITY_TYPE, MonolithBlockEntityRenderer::new);
+        BlockEntityRendererRegistry.register(EOBlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, VitricCampfireBlockEntityRenderer::new);
+        EntityRendererRegistry.INSTANCE.register(EOEntityTypeInit.VITRIFIED, VitrifiedRenderer::new);
+        EntityRendererRegistry.INSTANCE.register(EOEntityTypeInit.JAUNT, JauntRenderer::new);
+        ParticleFactoryRegistry.getInstance().register(EOParticlesInit.SMALL_VOID_PARTICLE, SmallVoidParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(EOParticlesInit.VOID_PARTICLE, VoidParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(EOParticlesInit.EXECUTE_PARTICLE, ExecuteParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(EOParticlesInit.EFFIGY_PARTICLE, EffigyParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(EOParticlesInit.SPLISH_PARTICLE, SplishParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(EOParticlesInit.HAUNTED_SLASH_PARTICLE, HauntedSlashParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(EOParticlesInit.HAUNTED_BOUNCE_PARTICLE, HauntedBounceParticle.Factory::new);
         initEvents();
         initColours();
         initpayloads();
@@ -121,7 +114,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
                 return Color.HSBtoRGB(1-0.2f*yTrue,yTrue/1.5f*otherNoise,MathHelper.clamp(0.1f+yTrue*0.9f/(otherNoise+0.1f),0,1f));
             }
             return Color.HSBtoRGB(1,0,0.1f);
-        },BlocksInit.BEDROCK_LEAVES);
+        }, EOBlocksInit.BEDROCK_LEAVES);
         ColorProviderRegistry.ITEM.register((provider, objects)->{
             if(provider.get(EODataComponentTypeInit.AXEHEAT)!=null&&objects==1){
                 float axeheat = provider.get(EODataComponentTypeInit.AXEHEAT)/200f;
@@ -131,8 +124,8 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
                 return ColorHelper.Argb.fromFloats(axeheat,0.5f,0f,1f);
             }
             return Color.HSBtoRGB(1,0,1);
-        }, ItemsInit.HAUNTED_AXE);
-        ColorProviderRegistry.ITEM.register((provider, objects)-> Color.HSBtoRGB(1,0.1f,0.3f), BlocksInit.BEDROCK_LEAVES.asItem());
+        }, EOItemsInit.HAUNTED_AXE);
+        ColorProviderRegistry.ITEM.register((provider, objects)-> Color.HSBtoRGB(1,0.1f,0.3f), EOBlocksInit.BEDROCK_LEAVES.asItem());
 
     }
     private void initpayloads(){
@@ -174,6 +167,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
     }
     private void initEvents() {
         HudRenderCallback.EVENT.register(new HollowCoreRenderEvent());
+        TooltipComponentCallback.EVENT.register(new PalePileTooltipComponentEvent());
         HudRenderCallback.EVENT.register(new ThunderedRenderEvent());
         HudRenderCallback.EVENT.register(new MarkiplierEvent());
         PostWorldRenderCallback.EVENT.register((camera, tickDelta)->{
@@ -251,6 +245,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
             shader.setSamplerUniform("DepthSampler", ((ReadableDepthFramebuffer)MinecraftClient.getInstance().getFramebuffer()).getStillDepthMap());
         });
         AFTERBURN_PROGRAM = ShaderEffectManager.getInstance().manage(ExecutiveOrders.id("shaders/post/afterburn.json"));
+        roofTime = ROOF_PROGRAM.findUniform1f("GameTime");
         paleSampler = PALE_PROGRAM.findSampler("SculkSampler");
         voidSampler = VOIDPAR_PROGRAM.findSampler("ParSampler");
         voidSampler2 = VOIDPAR_PROGRAM.findSampler("ParSampler2");
@@ -261,6 +256,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
         paleTime = PALE_PROGRAM.findUniform1f("GameTime");
         paleCamRot = PALE_PROGRAM.findUniform2f("CamRot");
         palebordCamRot = PALEBORDER_PROGRAM.findUniform2f("CamRot");
+
         palebordTime = PALEBORDER_PROGRAM.findUniform1f("GameTime");
         burnTime = AFTERBURN_PROGRAM.findUniform1f("GameTime");
         voidTime = AFTERBURN_PROGRAM.findUniform1f("GameTime");

@@ -1,35 +1,24 @@
 package net.atired.executiveorders.items;
 
 import net.atired.executiveorders.init.EODataComponentTypeInit;
-import net.atired.executiveorders.init.ItemsInit;
 import net.atired.executiveorders.misc.HauntedAxeMaterial;
 import net.atired.executiveorders.networking.payloads.HauntedAxePayload;
-import net.atired.executiveorders.particles.custom.types.BounceParticleEffect;
 import net.atired.executiveorders.particles.custom.types.SlashParticleEffect;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
-import net.minecraft.particle.BlockStateParticleEffect;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.joml.Vector3f;
 
 public class HauntedAxeItem extends AxeItem {
     public HauntedAxeItem(Settings settings) {

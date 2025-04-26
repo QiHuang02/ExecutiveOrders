@@ -1,7 +1,7 @@
 package net.atired.executiveorders.mixins.deeprelated;
 
 import net.atired.executiveorders.accessors.DepthsLivingEntityAccessor;
-import net.atired.executiveorders.init.ItemsInit;
+import net.atired.executiveorders.init.EOItemsInit;
 import net.atired.executiveorders.items.PalePileItem;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
@@ -65,8 +65,8 @@ public abstract class DepthsMobEntityMixin extends LivingEntity implements Depth
             }
             List<ItemStack> itemStacks = lootTable.generateLoot(builder.build(LootContextTypes.ENTITY));
             if(!itemStacks.isEmpty()&&itemStacks.getFirst().getItem()!= Items.AIR){
-                ItemStack paleOoze = new ItemStack(ItemsInit.PALE_PILE);
-                ((PalePileItem)ItemsInit.PALE_PILE).addItems(paleOoze,itemStacks);
+                ItemStack paleOoze = new ItemStack(EOItemsInit.PALE_PILE);
+                ((PalePileItem) EOItemsInit.PALE_PILE).addItems(paleOoze,itemStacks);
                 ItemEntity itemEntity = this.dropStack(paleOoze);
                 itemEntity.setNoGravity(true);
 

@@ -12,7 +12,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Rarity;
 
-public class ItemsInit {
+public class EOItemsInit {
     public static final FoodComponent FISHOVEL = new FoodComponent.Builder().nutrition(3).saturationModifier(0.6f).snack().build();
 
     public static final Item WARPEDEFFIGY = registerItem("warpedeffigy", new WarpedEffigyItem(new Item.Settings().maxCount(1).rarity(Rarity.UNCOMMON)));

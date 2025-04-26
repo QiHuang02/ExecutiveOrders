@@ -1,17 +1,15 @@
 package net.atired.executiveorders.enemies.blockentity;
 
-import net.atired.executiveorders.init.BlockEntityInit;
+import net.atired.executiveorders.init.EOBlockEntityInit;
 import net.atired.executiveorders.networking.payloads.MonolithPayload;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.AbstractFurnaceBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
 public class MonolithBlockEntity extends BlockEntity {
     public int alphaticks = 0;
@@ -19,7 +17,7 @@ public class MonolithBlockEntity extends BlockEntity {
         super(type, pos, state);
     }
     public MonolithBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntityInit.MONOLITH_ENTITY_TYPE, pos, state);
+        super(EOBlockEntityInit.MONOLITH_ENTITY_TYPE, pos, state);
     }
     public static void tick(World world, BlockPos pos, BlockState state, MonolithBlockEntity blockEntity) {
         if(blockEntity.alphaticks>0){

@@ -7,7 +7,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 
-public class MobEffectsInit {
+public class EOMobEffectsInit {
     public static final RegistryEntry<StatusEffect> PHASING_EFFECT;
 
     static {

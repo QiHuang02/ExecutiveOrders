@@ -1,23 +1,20 @@
 package net.atired.executiveorders.blocks;
 
 import net.atired.executiveorders.enemies.blockentity.VitricCampfireBlockEntity;
-import net.atired.executiveorders.init.BlockEntityInit;
+import net.atired.executiveorders.init.EOBlockEntityInit;
 import net.atired.executiveorders.init.EODataComponentTypeInit;
-import net.atired.executiveorders.init.ParticlesInit;
+import net.atired.executiveorders.init.EOParticlesInit;
 import net.atired.executiveorders.recipe.VitrifiedRecipe;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.CampfireBlockEntity;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.particle.SimpleParticleType;
-import net.minecraft.recipe.CampfireCookingRecipe;
 import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -61,11 +58,11 @@ public class VitricCampfireBlock extends CampfireBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         if (world.isClient) {
-            return state.get(LIT) ? validateTicker(type, BlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, VitricCampfireBlockEntity::clientTick) : null;
+            return state.get(LIT) ? validateTicker(type, EOBlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, VitricCampfireBlockEntity::clientTick) : null;
         } else {
             return state.get(LIT)
-                    ? validateTicker(type, BlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, VitricCampfireBlockEntity::litServerTick)
-                    : validateTicker(type, BlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, VitricCampfireBlockEntity::unlitServerTick);
+                    ? validateTicker(type, EOBlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, VitricCampfireBlockEntity::litServerTick)
+                    : validateTicker(type, EOBlockEntityInit.VITRIC_CAMPFIRE_ENTITY_TYPE, VitricCampfireBlockEntity::unlitServerTick);
         }
     }
 
@@ -101,7 +98,7 @@ public class VitricCampfireBlock extends CampfireBlock {
     public static void spawnSmokeParticle(World world, BlockPos pos, boolean isSignal, boolean lotsOfSmoke) {
         Random random = world.getRandom();
 
-        SimpleParticleType simpleParticleType =ParticlesInit.SMALL_VOID_PARTICLE;
+        SimpleParticleType simpleParticleType = EOParticlesInit.SMALL_VOID_PARTICLE;
         world.addImportantParticle(
                 simpleParticleType,
                 true,

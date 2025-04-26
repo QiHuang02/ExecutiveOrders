@@ -12,7 +12,7 @@ import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
-public class ParticlesInit {
+public class EOParticlesInit {
     public static final SimpleParticleType EXECUTE_PARTICLE = FabricParticleTypes.simple();
     public static final SimpleParticleType VOID_PARTICLE = FabricParticleTypes.simple();
     public static final SimpleParticleType SMALL_VOID_PARTICLE = FabricParticleTypes.simple();

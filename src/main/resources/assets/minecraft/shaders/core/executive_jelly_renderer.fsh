@@ -36,7 +36,8 @@ vec3 hsv2rgb(vec3 c)
 }
 void main() {
     vec4 color = texture(Sampler0, texCoord0);
-
+    if(color.a<0.1||vertexColor.a<0.1)
+        discard;
 
     color *= vertexColor * ColorModulator;
     vec3 hsvcol = rgb2hsv(color.xyz);
