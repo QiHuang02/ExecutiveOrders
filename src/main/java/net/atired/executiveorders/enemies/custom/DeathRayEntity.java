@@ -1,5 +1,6 @@
 package net.atired.executiveorders.enemies.custom;
 
+import net.atired.executiveorders.init.EODamageTypesInit;
 import net.atired.executiveorders.init.EOEntityTypeInit;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -56,7 +57,7 @@ public class DeathRayEntity extends Entity {
                     float mult = dist1/(dist1+dist2);
                     Vec3d accPos = getTargetPos().multiply(mult).add(this.getPos());
                     if(accPos.distanceTo(livingEntity.getPos())<2){
-                        livingEntity.damage(getDamageSources().outOfWorld(),1f);
+                        livingEntity.damage(getDamageSources().create(EODamageTypesInit.UNRAVELING),4f);
                     }
                 }
 
