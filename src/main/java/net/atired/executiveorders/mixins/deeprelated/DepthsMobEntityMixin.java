@@ -94,7 +94,7 @@ public abstract class DepthsMobEntityMixin extends LivingEntity implements Depth
 
     @Inject(method = "initialize(Lnet/minecraft/world/ServerWorldAccess;Lnet/minecraft/world/LocalDifficulty;Lnet/minecraft/entity/SpawnReason;Lnet/minecraft/entity/EntityData;)Lnet/minecraft/entity/EntityData;",at = @At("TAIL"))
     public void deepFinalizeSpawning(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, EntityData entityData, CallbackInfoReturnable<EntityData> cir){
-        if(getPos().y<-55 && spawnReason != SpawnReason.REINFORCEMENT){
+        if(getPos().y<-52 && spawnReason != SpawnReason.REINFORCEMENT){
             if(((LivingEntity)this) instanceof HostileEntity)
             {
                 this.executiveOrders$setRadiant(true);

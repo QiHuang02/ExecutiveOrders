@@ -7,6 +7,8 @@ import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatArrays;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import net.atired.executiveorders.accessors.LivingEntityAccessor;
+import net.atired.executiveorders.client.renderers.IcoSphere;
+import net.atired.executiveorders.init.EOMobEffectsInit;
 import net.atired.executiveorders.init.EOParticlesInit;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -18,6 +20,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
@@ -32,7 +35,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.Iterator;
 import java.util.List;
@@ -62,12 +67,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 
     @Shadow public abstract boolean isPartOfGame();
 
+    @Shadow public abstract boolean areItemsDifferent(ItemStack stack, ItemStack stack2);
+
     private int thunderedtime;
     private int executetime;
     private Vec3d oldvel = Vec3d.ZERO;
     private boolean bouncy = false;
     private boolean noclipped = false;
     private boolean doomed = false;
+
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }
@@ -82,8 +90,21 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
         }
         oldvel = getVelocity();
     }
+    //
+    @ModifyArgs(method="Lnet/minecraft/entity/LivingEntity;baseTick()V",at= @At(ordinal = 0, value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;damage(Lnet/minecraft/entity/damage/DamageSource;F)Z"))
+    private void lotsohurt(Args args){
+        if(((LivingEntity)(Entity)this).hasStatusEffect(EOMobEffectsInit.PHASING_EFFECT)){
+            if(args.get(0)!=this.getDamageSources().inWall()){
+                ((LivingEntity)(Entity)this).removeStatusEffect(EOMobEffectsInit.PHASING_EFFECT);
+            }
+                else{
+                args.set(1,0.0f);
+            }
+        }
+    }
     @Inject(at = @At("TAIL"), method = "tick()V")
     private void tickmix(CallbackInfo info) {
+
         if((this.isFallFlying()||this.getVelocity().length()>3) && this.getPos().length()>9100 && this.getWorld().getDimensionEntry().getKey().isPresent() && this.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END)
         {
             if(getThunderedTime()<100)

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "executiveorders:block/suspicious_bedrock_1"
+  }
+}

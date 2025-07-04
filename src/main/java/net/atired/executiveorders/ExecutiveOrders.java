@@ -5,6 +5,7 @@ import net.atired.executiveorders.init.*;
 import net.atired.executiveorders.init.worldgen.BiomeModifInit;
 import net.atired.executiveorders.init.worldgen.FeatureInit;
 import net.atired.executiveorders.items.WarpedEffigyItem;
+import net.atired.executiveorders.networking.ExecutiveOrdersNetworkingConstants;
 import net.atired.executiveorders.recipe.ExecutiveOrdersRecipes;
 import net.atired.executiveorders.recipe.VitrifiedRecipe;
 import net.atired.executiveorders.recipe.VoidtouchedRecipe;
@@ -12,6 +13,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.Entity;
@@ -21,8 +23,10 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
 import net.minecraft.particle.ParticleEffect;
+import net.minecraft.potion.Potions;
 import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.SmeltingRecipe;
@@ -46,11 +50,18 @@ public class ExecutiveOrders implements ModInitializer {
         EOItemsInit.register();
         EOBlocksInit.register();
         EOBlockEntityInit.initialize();
+        EODamageTypesInit.init();
         ExecutiveOrdersRecipes.registerRecipes();
         EnchantmentEffectComponentTypesInit.init();
         EOMobEffectsInit.init();
         EOEntityTypeInit.init();
+
+        EOPotionsInit.registerPotions();
         EODataComponentTypeInit.init();
+        FabricBrewingRecipeRegistryBuilder.BUILD.register((builder -> {
+
+            builder.registerPotionRecipe(Potions.THICK, Items.END_STONE, EOPotionsInit.BONGLED_POTION);
+        }));
         ExecutiveOrdersEntityGeneration.addSpawns();
         EnchantmentInit.load();
         FeatureInit.init();
@@ -81,6 +92,7 @@ public class ExecutiveOrders implements ModInitializer {
         initEvents();
     }
     private void initEvents(){
+
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity,damageSource,damage)->{
             for (ItemStack stack : entity.getHandItems()) {
                 if(stack.getItem() instanceof WarpedEffigyItem){

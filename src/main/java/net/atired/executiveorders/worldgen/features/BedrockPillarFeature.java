@@ -28,7 +28,12 @@ public class BedrockPillarFeature
         BlockPos.Mutable blockPos1 = blockPos.mutableCopy();
         BlockPos.Mutable blockPos2 = blockPos.mutableCopy();
         float randumb = EOgetDatNoise.sampleNoise3D(blockPos.getX(),blockPos.getY(),blockPos.getZ(),300f);
-        if(randumb>0.50f && (blockPos.getX()%3 == 0)&&(blockPos.getZ()%3 == 0) && structureWorldAccess.getBlockState(blockPos1.add(0,-1,0)).getBlock() == Blocks.BEDROCK){
+
+        if(randumb>0.45f && (blockPos.getX()%3 == 0)&&(blockPos.getZ()%3 == 0) && structureWorldAccess.getBlockState(blockPos1.add(0,-1,0)).getBlock() == Blocks.BEDROCK){
+            if(randumb<0.5f && Math.random()>0.8){
+                structureWorldAccess.setBlockState(blockPos1.add(0,-1,0), EOBlocksInit.SUSPICIOUS_BEDROCK.getDefaultState(), Block.NOTIFY_LISTENERS);
+                return true;
+            }
             float randumber = (float) (Math.random()*3.14f*2);
             boolean leaves = false;
             float amount = 16*((randumb-0.5f)*10);
@@ -46,6 +51,12 @@ public class BedrockPillarFeature
                     for (int z = -2; z <= 2; z++) {
                         blockPos3 = blockPos3.set(blockPos2.getX()+x,blockPos2.getY()+amount,+blockPos2.getZ()+z);
                         int i = Math.abs(x) + Math.abs(z);
+                        int randumbest = (int)(EOgetDatNoise.sampleNoise3D(blockPos3.getX(),blockPos3.getY(),blockPos3.getZ(),10f)*10);
+                        for(int y = 1; y < randumbest; y++){
+                            if(structureWorldAccess.getBlockState(blockPos3.add(0,-y,0)).isAir()&& i <4)
+                                structureWorldAccess.setBlockState(blockPos3.add(0,-y,0), EOBlocksInit.BEDROCK_LEAVES.getDefaultState(), Block.NOTIFY_LISTENERS);
+
+                        }
                         if(structureWorldAccess.getBlockState(blockPos3).isAir() && i <4){
                             structureWorldAccess.setBlockState(blockPos3, Blocks.BEDROCK.getDefaultState(), Block.NOTIFY_LISTENERS);
 

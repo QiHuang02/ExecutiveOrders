@@ -10,17 +10,24 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ToolMaterials;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.tag.InstrumentTags;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Rarity;
+import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.structure.StructureKeys;
 
 public class EOItemsInit {
     public static final FoodComponent FISHOVEL = new FoodComponent.Builder().nutrition(3).saturationModifier(0.6f).snack().build();
 
     public static final Item WARPEDEFFIGY = registerItem("warpedeffigy", new WarpedEffigyItem(new Item.Settings().maxCount(1).rarity(Rarity.UNCOMMON)));
+    public static final Item WARHORN = registerItem("warhorn", new WarHornItem(new Item.Settings().maxCount(1),InstrumentTags.GOAT_HORNS));
+
     public static final Item RIPPERSHARK = registerItem("ripper_shark", new FishAxeItem(ToolMaterials.STONE,new Item.Settings().food(FoodComponents.COOKED_COD)));
     public static final Item DIGGERSHARK = registerItem("digger_shark", new FiShovelItem(ToolMaterials.STONE,new Item.Settings().food(FISHOVEL)));
     public static final Item HAUNTED_AXE = registerItem("haunted_axe", new HauntedAxeItem(new Item.Settings().maxCount(1).component(EODataComponentTypeInit.AXEHEAT,0).attributeModifiers(HauntedAxeItem.createAttributeModifiers(ToolMaterials.IRON,6,-3))));
     public static final Item SWORDFISH = registerItem("sword_fish", new FishSwordItem(ToolMaterials.WOOD,new Item.Settings().food(FoodComponents.COOKED_COD).attributeModifiers(FishSwordItem.createAttributeModifiers(ToolMaterials.DIAMOND, 2, -3f))));
     public static final Item PALE_PILE = registerItem("pale_pile", new PalePileItem(new Item.Settings().maxCount(1).maxDamage(168).component(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT)));
+    public static final Item NIGHTMARE_FUEL = registerItem("nightmare_fuel", new Item(new Item.Settings().maxCount(1).maxDamage(168).component(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT)));
 
     private static Item registerItem(String name, Item item){
         return Registry.register(Registries.ITEM, ExecutiveOrders.id(name),item);

@@ -25,7 +25,7 @@ public class HauntedBounceParticle<T extends BounceParticleEffect> extends Sprit
         this.velocityX = xd;
         this.velocityY = yd;
         this.velocityZ = zd;
-        this.scale = 1;
+        this.scale = 1+effect.getHeat();
         this.setSpriteForAge(spriteProvider);
         dir = new Vec3d(effect.getPosTo());
         dir = dir.normalize();

@@ -66,6 +66,33 @@ public class ParticleManagerMixin {
                 }
             }
         PaleUniformsEvent.getFramebufferPar().endWrite();
+        PaleUniformsEvent.getFramebufferPar3().beginWrite(false);
+        sheet = ExecutiveOrdersClient.PARTICLE_SHEET_SKY;
+        queue = (Queue<Particle>)this.particles.get(sheet);
+        if (queue != null && !queue.isEmpty()) {
+            RenderSystem.setShader(GameRenderer::getParticleProgram);
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder bufferBuilder = sheet.begin(tessellator, this.textureManager);
+            if (bufferBuilder != null) {
+                for (Particle particle : queue) {
+                    try {
+                        particle.buildGeometry(bufferBuilder, camera, tickDelta);
+                    } catch (Throwable var14) {
+                        CrashReport crashReport = CrashReport.create(var14, "Rendering Particle");
+                        CrashReportSection crashReportSection = crashReport.addElement("Particle being rendered");
+                        crashReportSection.add("Particle", particle::toString);
+                        crashReportSection.add("Particle Type", sheet::toString);
+                        throw new CrashException(crashReport);
+                    }
+                }
+
+                BuiltBuffer builtBuffer = bufferBuilder.endNullable();
+                if (builtBuffer != null) {
+                    BufferRenderer.drawWithGlobalProgram(builtBuffer);
+                }
+            }
+        }
+        PaleUniformsEvent.getFramebufferPar3().endWrite();
         MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
         RenderSystem.depthMask(true);
         RenderSystem.disableBlend();

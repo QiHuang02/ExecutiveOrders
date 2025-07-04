@@ -1,5 +1,6 @@
 package net.atired.executiveorders.mixins;
 
+import net.atired.executiveorders.accessors.ClientWorldAccessor;
 import net.atired.executiveorders.tags.EOEnchantmentTags;
 import net.minecraft.block.entity.VaultBlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -39,6 +40,16 @@ public abstract class InGameHudMixin {
     private void injectedTail(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci){
         context.setShaderColor(1,1,1,1);
     }
+    @Inject(method = "renderHotbar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V",at= @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;disableBlend()V"))
+    private void otherjected(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci){
+        if(MinecraftClient.getInstance().world instanceof ClientWorldAccessor accessor){
+            float offscale = 1f-accessor.executiveOrders$getIcoPower();
+            if(offscale<1f){
+                context.setShaderColor(1f,1f,1f, 1f);
+
+            }
+        }
+    }
     @Inject(method = "renderHotbar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", at = @At(value = "HEAD"))
     private void injected(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci)
     {
@@ -56,6 +67,14 @@ public abstract class InGameHudMixin {
             context.setShaderColor(Math.clamp(valued+0.6f,0f,1f),Math.clamp(valued+0.7f,0f,1f),1f, 1f);
             context.getMatrices().translate(Math.sin(tickCounter.getTickDelta(true)/24f+ MinecraftClient.getInstance().world.getTime()/24f)*3f*(1-valued), 0,0);
 
+        }
+        if(MinecraftClient.getInstance().world instanceof ClientWorldAccessor accessor){
+            float offscale = 1f-accessor.executiveOrders$getIcoPower();
+            if(offscale<1f){
+                context.setShaderColor(1f,Math.clamp(offscale+0.4f,0f,1f),Math.clamp(offscale+0.4f,0f,1f), 1f);
+                context.getMatrices().translate(Math.cos(tickCounter.getTickDelta(true)/30f+ MinecraftClient.getInstance().world.getTime()/30f)*(1f-offscale), 0,0);
+                context.getMatrices().multiply(new Quaternionf().rotationZ((float) (Math.sin(tickCounter.getTickDelta(true)/15f+ (MinecraftClient.getInstance().world.getTime()%9000)/15f)/90*(1f-offscale))), context.getScaledWindowWidth()/2f, context.getScaledWindowHeight()/2f,0);
+            }
         }
 
     }

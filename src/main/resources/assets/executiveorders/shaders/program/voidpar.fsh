@@ -73,6 +73,7 @@ void main() {
     }
     else{
         fragColor = texture(DiffuseSampler,texCoord);
+        fragColor.a = 1.0f;
     }
 
 }

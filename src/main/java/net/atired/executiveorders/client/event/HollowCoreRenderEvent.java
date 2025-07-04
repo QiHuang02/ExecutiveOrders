@@ -2,6 +2,7 @@ package net.atired.executiveorders.client.event;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import it.unimi.dsi.fastutil.io.TextIO;
 import net.atired.executiveorders.ExecutiveOrders;
 import net.atired.executiveorders.tags.EOEnchantmentTags;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -11,8 +12,16 @@ import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.toast.SystemToast;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.StyleConstants;
 
 public class HollowCoreRenderEvent implements HudRenderCallback {
     private static final Identifier TEXTURE = ExecutiveOrders.id("hud/hollow_core_notif");

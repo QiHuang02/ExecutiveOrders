@@ -32,6 +32,7 @@ public class JauntEyesFeatureRenderer<T extends JauntEntity> extends EyesFeature
     @Override
     public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
         VertexConsumer vertexConsumer = vertexConsumers.getBuffer(this.getEyesTexture());
+        matrices.scale(1.2f,1.2f,1.2f);
         matrices.multiply(new Quaternionf().rotationY((entity.getWorld().getTime()+entity.getId()+tickDelta)/8f));
         if(!entity.isVolatile())
         {

@@ -42,7 +42,7 @@ public class VitricCampfireBlockEntityRenderer implements BlockEntityRenderer<Vi
         matrixStack.translate(0.5F, 0.1F, 0.5F);
         Matrix4f pose = matrixStack.peek().getPositionMatrix();
         MatrixStack.Entry normal = matrixStack.peek();
-        long time = campfireBlockEntity.getWorld().getTime()/3;
+        long time = (campfireBlockEntity.getWorld().getTime()/3)%80000;
         vertex(pose,normal,consumer,new Vec3d(-0.5,0,0),1,(time)/8f,-1, 0, 0, 255, 1,1f,1,1);
         vertex(pose,normal,consumer,new Vec3d(0.5,0,0),1,(time+1)/8f,-1, 0, 1, 255, 1,1f,1,1);
         vertex(pose,normal,consumer,new Vec3d(0.4,1.5+Math.sin((campfireBlockEntity.getWorld().getTime()+f)/8f)/3f,0),0,(time+1)/8f,-1, 0, 0, 255, 1,1f,1,1);

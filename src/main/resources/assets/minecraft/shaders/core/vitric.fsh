@@ -104,7 +104,7 @@ void main() {
         discard;
     }
     vec3 hsvcol = rgb2hsv(color.xyz);
-    float alph = color.a*(0.6+1*((cos(texCoord0.y*400+STime+texCoord0.x*50))/2+0.5)*((sin(texCoord0.x*400-STime))/2+0.5));
+    float alph = color.a*(0.9+0.5*cnoise(vec3(texCoord0*200,STime/2)));
     color.a=alph;
     hsvcol.y*=0.1;
     color.xyz = hsv2rgb(hsvcol);

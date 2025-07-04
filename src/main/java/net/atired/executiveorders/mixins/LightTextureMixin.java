@@ -1,6 +1,7 @@
 package net.atired.executiveorders.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import net.atired.executiveorders.accessors.ClientWorldAccessor;
 import net.atired.executiveorders.accessors.LivingEntityAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -28,6 +29,9 @@ public class LightTextureMixin {
             {
                 return original*8f;
             }
+
+
+
         }
         return original;
     }

@@ -9,6 +9,7 @@ uniform vec2 InSize;
 uniform float GameTime;
 uniform float Burn;
 uniform float _FOV;
+uniform float RealDarkness;
 
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
 vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
@@ -115,7 +116,7 @@ void main() {
     if(mosaicInSize.length()>InSize.length()){
         mosaicInSize = InSize;
     }
-    distance = max(distance/60,1);
+    distance = max(distance/60*RealDarkness,1);
     vec4 baseCopy = texture(DiffuseSampler,texCoord);
     vec2 texCopy = texCoord - fract(texCoord*mosaicInSize)/mosaicInSize;
 
@@ -128,7 +129,25 @@ void main() {
     vec2 texCopy2=(texCoord - fract(texCoord*InSize/16)/InSize*16);
     float center=pow((1-abs(texCopy2.y-0.5)*2)*(1-abs(texCopy2.x-0.5)*2),0.5)+abs(cnoise(vec3((texCoord - fract(texCoord*InSize/16)/InSize*16)*12,GameTime*800)))/1.2;
     col*=(clamp(center+0.31,0,1));
-    fragColor = col/distance;
+    fragColor.xyz = col.xyz/distance;
+    vec3 hsvCol = rgb2hsv(fragColor.xyz);
+    vec3 hsvCol2 = rgb2hsv(fragColor.xyz);
+    hsvCol2.x = 0.9;
+    hsvCol2.z *= 1/pow(distance,0.7);
+    hsvCol = hsv2rgb(hsvCol);
+    hsvCol2 = hsv2rgb(hsvCol2);
+    float col2 = clamp(RealDarkness/10,0,1);
+    if(RealDarkness>1){
 
+        hsvCol = col2*hsvCol2 + (1-col2)*hsvCol;
+        center = 1-center;
+        center*=col2;
+        if(center>0.5){
+            col2*=((center/0.5)-1);
+            col2-=fract(col2*8)/8;
+            hsvCol.xyz = col2*vec3(1,0.3,0.8)+(1-col2)*hsvCol.xyz;
+        }
+    }
 
+    fragColor.xyz = hsvCol;
 }

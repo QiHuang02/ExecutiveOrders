@@ -2,6 +2,7 @@ package net.atired.executiveorders.init;
 
 import net.atired.executiveorders.ExecutiveOrders;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -18,6 +19,7 @@ public class EOItemGroups {
                     .entries((displayContext, entries) -> {
                         entries.add(EOItemsInit.PALE_PILE);
                         entries.add(EOItemsInit.HAUNTED_AXE);
+                        entries.add(EOItemsInit.WARHORN);
 
                         entries.add(EOItemsInit.WARPEDEFFIGY);
                         entries.add(EOItemsInit.DIGGERSHARK);
@@ -28,6 +30,7 @@ public class EOItemGroups {
                         entries.add(EOBlocksInit.MONOLITH);
 
                         entries.add(EOBlocksInit.BEDROCK_LEAVES);
+                        entries.add(EOBlocksInit.SUSPICIOUS_BEDROCK);
 
                     }).build());
     public static void init(){

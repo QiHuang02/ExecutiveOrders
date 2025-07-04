@@ -44,8 +44,9 @@ public class JauntRenderer extends ZombieBaseEntityRenderer<JauntEntity, JauntMo
 
     @Override
     public void render(JauntEntity livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+
         matrixStack.translate(livingEntity.laspos.x-livingEntity.getLerpedPos(g).x,livingEntity.laspos.y-livingEntity.getLerpedPos(g).y,livingEntity.laspos.z-livingEntity.getLerpedPos(g).z);
-        if(livingEntity.isVolatile()){
+        if(livingEntity.isVolatile()&&EOgetDatNoise.class!=null){
             float noisyx = EOgetDatNoise.sampleNoise3D((float)(livingEntity.getX()+Math.sin(livingEntity.getWorld().getTime()/8f+g)),(livingEntity.getWorld().getTime()+g)/4f,0f,10f)/3f;
             float noisyz = EOgetDatNoise.sampleNoise3D(0,(livingEntity.getWorld().getTime()+g)/4f,(float)(livingEntity.getZ()+Math.cos(livingEntity.getWorld().getTime()/8f+g)),10f)/3f;
             matrixStack.translate(noisyx,0,noisyz);

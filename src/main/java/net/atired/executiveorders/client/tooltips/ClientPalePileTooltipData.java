@@ -42,7 +42,7 @@ public class ClientPalePileTooltipData implements TooltipComponent {
 
     @Override
     public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context) {
-        if(this.stacks.getFirst().isEmpty())
+        if(this.stacks.isEmpty()||this.stacks.getFirst().isEmpty())
             return;
         int i = 0;
         long time = MinecraftClient.getInstance().world.getTime();

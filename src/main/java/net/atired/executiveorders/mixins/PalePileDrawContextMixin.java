@@ -1,6 +1,7 @@
 package net.atired.executiveorders.mixins;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.atired.executiveorders.ExecutiveOrders;
 import net.atired.executiveorders.init.EODataComponentTypeInit;
 import net.atired.executiveorders.init.EOItemsInit;
 import net.minecraft.client.MinecraftClient;
@@ -14,7 +15,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashCallable;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
@@ -25,6 +29,7 @@ import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -33,6 +38,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class PalePileDrawContextMixin {
 
 
+    @Unique
+    private static final Identifier MONOLITH = ExecutiveOrders.id("hud/nightmarefuelside");
     @Shadow public abstract void drawItem(ItemStack stack, int x, int y, int seed);
 
     @Shadow public abstract void drawItem(LivingEntity entity, ItemStack stack, int x, int y, int seed);
@@ -47,8 +54,35 @@ public abstract class PalePileDrawContextMixin {
 
     @Shadow public abstract VertexConsumerProvider.Immediate getVertexConsumers();
 
+    @Shadow public abstract void drawGuiTexture(Identifier texture, int x, int y, int width, int height);
+
+    @Shadow public abstract void drawGuiTexture(Identifier texture, int i, int j, int k, int l, int x, int y, int width, int height);
+
     @Inject(method = "Lnet/minecraft/client/gui/DrawContext;drawItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;IIII)V",at=@At("HEAD"),cancellable = true)
     private void drawVitricItem(LivingEntity entity, World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci){
+        if(entity instanceof PlayerEntity user&&stack.getItem() == Items.GOAT_HORN && user.getInventory().contains((itemStack)->{
+            if(itemStack.getItem()== EOItemsInit.PALE_PILE){
+                return true;
+            }
+            return false;
+        })){
+            Quaternionf quaternionf3 = new Quaternionf();
+            quaternionf3.rotationZYX((float) (Math.cos(this.client.player.getWorld().getTime()/8f+(x+y)/12f)*0.4f),0, 0);
+            this.matrices.multiply(quaternionf3,x+8, y+8,0);
+        }
+        if(stack.getItem() == EOItemsInit.NIGHTMARE_FUEL){
+            Quaternionf quaternionf = new Quaternionf();
+            RenderSystem.setShaderColor(1,1,1,0.5f);
+            quaternionf.rotationZYX((float) (Math.sin(this.client.player.getWorld().getTime()/10f+(x+y)/12f)*0.4f)/3.0f,0, 0);
+            this.matrices.multiply(quaternionf,x+8, y+8,0);
+            this.matrices.translate((float) (Math.cos(this.client.player.getWorld().getTime()/10f+(x+y)/12f)*0.5),0,0);
+            drawGuiTexture(MONOLITH,16,28,0, (int) (((world.getTime()/6)%14)),x,y+1,16,14);
+            this.matrices.translate((float) -(Math.cos(this.client.player.getWorld().getTime()/10f+(x+y)/12f)*0.5),0,0);
+            quaternionf = new Quaternionf();
+            quaternionf.rotationZYX(-(float) (Math.sin(this.client.player.getWorld().getTime()/10f+(x+y)/12f)*0.4f)/3.0f*1.5f,0, 0);
+            this.matrices.multiply(quaternionf,x+8, y+8,0);
+            RenderSystem.setShaderColor(1,1,1,1f);
+        }
         if(stack.get(EODataComponentTypeInit.VITRIC)!=null&&stack.get(EODataComponentTypeInit.VITRIC).intValue() == 1 ){
             ci.cancel();
             Quaternionf quaternionf2 = new Quaternionf();
@@ -98,6 +132,21 @@ public abstract class PalePileDrawContextMixin {
 
         @Inject(method = "Lnet/minecraft/client/gui/DrawContext;drawItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;IIII)V",at=@At("TAIL"),cancellable = true)
     private void drawPaleItem(LivingEntity entity, World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci){
+            if(entity instanceof PlayerEntity user&&stack.getItem() == Items.GOAT_HORN && user.getInventory().contains((itemStack)->{
+                if(itemStack.getItem()== EOItemsInit.PALE_PILE){
+                    return true;
+                }
+                return false;
+            })){
+                Quaternionf quaternionf3 = new Quaternionf();
+                quaternionf3.rotationZYX((float) -(Math.cos(this.client.player.getWorld().getTime()/8f+(x+y)/12f)*0.4f),0, 0);
+                this.matrices.multiply(quaternionf3,x+8, y+8,0);
+            }
+            if(stack.getItem() == EOItemsInit.NIGHTMARE_FUEL){
+                Quaternionf quaternionf = new Quaternionf();
+                quaternionf.rotationZYX((float) (Math.sin(this.client.player.getWorld().getTime()/10f+(x+y)/12f)*0.4f)/3.0f*0.5f,0, 0);
+                this.matrices.multiply(quaternionf,x+8, y+8,0);
+            }
         if(stack.getItem() == EOItemsInit.PALE_PILE&&stack.get(DataComponentTypes.CONTAINER)!=null){
             ContainerComponent containerComponent = (ContainerComponent) stack.get(DataComponentTypes.CONTAINER);
             if(this.client.player!=null&&containerComponent.streamNonEmpty().count()>0&&containerComponent.streamNonEmpty().toList().getFirst().getItem()!= EOItemsInit.PALE_PILE)

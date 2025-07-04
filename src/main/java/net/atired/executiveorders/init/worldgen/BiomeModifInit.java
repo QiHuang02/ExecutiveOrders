@@ -11,12 +11,12 @@ public class BiomeModifInit {
     public static void load() {
         BiomeModifications.addFeature(
                 BiomeSelectors.foundInTheNether(),
-                GenerationStep.Feature.UNDERGROUND_DECORATION,
+                GenerationStep.Feature.FLUID_SPRINGS,
                 PlacedFeatureInit.BEDROCK_PILLARS_KEY
         );
         BiomeModifications.addFeature(
                 BiomeSelectors.includeByKey(BiomeKeys.DEEP_DARK),
-                GenerationStep.Feature.UNDERGROUND_DECORATION,
+                GenerationStep.Feature.FLUID_SPRINGS,
                 PlacedFeatureInit.VOID_PILLARS_KEY
         );
     }
