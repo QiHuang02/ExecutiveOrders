@@ -44,7 +44,7 @@ public abstract class ServerWorldMixin extends World {
         int i = chunkPos.getStartX();
         int j = chunkPos.getStartZ();
 
-        if (getDimensionEntry().getKey().get() == DimensionTypes.THE_END && new Vec3d(chunkPos.getCenterX(),0,chunkPos.getCenterZ()).length()>2000&& new Vec3d(chunkPos.getCenterX(),0,chunkPos.getCenterZ()).length()<3000&& this.random.nextInt(1000) == 0) {
+        if (getDimensionEntry().getKey().get() == DimensionTypes.THE_END && new Vec3d(chunkPos.getCenterX(),0,chunkPos.getCenterZ()).length()>2000&& new Vec3d(chunkPos.getCenterX(),0,chunkPos.getCenterZ()).length()<3000&& this.random.nextInt(300) == 0) {
             BlockPos blockPos = this.getLightningPos(this.getRandomPosInChunk(i, 0, j, 15));
                 blockPos = blockPos.up(255-blockPos.getY());
                 StarFallEntity starFallEntity = EOEntityTypeInit.STARFALL.create(this);

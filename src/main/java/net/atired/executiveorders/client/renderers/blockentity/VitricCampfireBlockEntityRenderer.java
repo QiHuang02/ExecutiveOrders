@@ -70,6 +70,7 @@ public class VitricCampfireBlockEntityRenderer implements BlockEntityRenderer<Vi
                 matrixStack.pop();
             }
         }
+
     }
     public void vertex(Matrix4f p_254392_, MatrixStack.Entry p_254011_, VertexConsumer p_253902_, Vec3d vec3, float p_254003_, float p_254165_, int p_253982_, int p_254037_, int p_254038_, int p_254271_, float r, float g, float b, float a) {
         p_253902_.vertex(p_254392_, (float)vec3.x, (float)vec3.y, (float)vec3.z).color(r,g,b, a).texture(p_254003_, p_254165_).overlay(OverlayTexture.DEFAULT_UV).light(255).normal(p_254011_, (float)p_253982_, (float)p_254038_, (float)p_254037_);

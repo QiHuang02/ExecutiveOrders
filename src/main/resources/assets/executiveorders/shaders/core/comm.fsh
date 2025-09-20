@@ -112,11 +112,11 @@ void main() {
     vec2 notCoord = texCopy-vec2(0.5,0.5);
     vec2 notCoord2 = notCoord;
     notCoord = normalize(notCoord)*vec2(1,0.2);
-    notCoord = rotate(notCoord,STime/30);
+    notCoord = rotate(notCoord,-STime/30);
     float texY = abs(texCopy.y-0.5)*4;
     float texX = abs(texCopy.x-0.5)*4;
     float noise = -cnoise(vec3(notCoord.x*3,notCoord.y*3+STime/20+Offset*20,STime/10+Offset*20))/1.6+pow(texX*texX+texY*texY,0.5)*0.6;
-    notCoord = rotate(notCoord,-STime/5+pow(notCoord2.x*notCoord2.x+notCoord2.y*notCoord2.y,0.5)*2);
+    notCoord = rotate(notCoord,STime/5+pow(notCoord2.x*notCoord2.x+notCoord2.y*notCoord2.y,0.5)*2);
     float noiser = abs(cnoise(vec3(notCoord.x*4+3,notCoord.y*4+Offset*20,Offset*20))*2)-pow(texX*texX+texY*texY,2)*0.15;
     float noise2 = clamp(cnoise(vec3(STime/300+Offset))+1,0.9,3);
     noise2 *= noise2;
@@ -132,21 +132,11 @@ void main() {
     if(noise>0.15){
         color.a = 0.0f;
     }
-    if(noise>0.7&&noise<0.8){
-        float alpha = (noise-0.7)*5;
-        color.a = alpha-fract(alpha*4)/4;
-        color.rgb =vec3(1f,0.02f,0.02f);
-    }
     if(noise2>1.5){
         color.a *= clamp((1.7-noise2)*5,0,1);
     }
 
-
-    if(noiser>0.2 && color.a < 0.5){
-        color.a = clamp((1.7-noise2)*5,0,1)*(clamp((noiser-0.2)*10,0,1));
-
-    }
-    else  if (color.a < 0.1){
+    if (color.a < 0.1){
         discard;
     }
     color.a *= vertexColor.a;

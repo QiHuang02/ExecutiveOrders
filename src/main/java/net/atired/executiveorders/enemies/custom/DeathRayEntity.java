@@ -44,8 +44,8 @@ public class DeathRayEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        this.scale= (float) Math.sin(this.age*3.14/200)*1.5f;
-        if(this.age>200){
+        this.scale= (float) Math.sin(this.age*3.14/80)*1.5f;
+        if(this.age>80){
             this.discard();
         }
         if(this.age>5){
@@ -56,7 +56,7 @@ public class DeathRayEntity extends Entity {
                 if(dist1<length+16&&dist2<length+16){
                     float mult = dist1/(dist1+dist2);
                     Vec3d accPos = getTargetPos().multiply(mult).add(this.getPos());
-                    if(accPos.distanceTo(livingEntity.getPos())<2){
+                    if(accPos.distanceTo(livingEntity.getPos().add(0,livingEntity.getHeight()/2,0))<2){
                         livingEntity.damage(getDamageSources().create(EODamageTypesInit.UNRAVELING),4f);
                     }
                 }

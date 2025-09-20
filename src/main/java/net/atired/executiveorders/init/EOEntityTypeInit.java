@@ -15,7 +15,7 @@ public class EOEntityTypeInit {
     public static final EntityType<JauntEntity> JAUNT = EntityType.Builder.create(JauntEntity::new, SpawnGroup.MONSTER).dimensions(EntityType.ZOMBIE.getWidth(), EntityType.ZOMBIE.getHeight()).build();
     public static final EntityType<IcoSphereEntity> ICOSPHERE = EntityType.Builder.create(IcoSphereEntity::new, SpawnGroup.MISC).dimensions(3, 3).build();
 
-    public static final EntityType<StarFallEntity> STARFALL = EntityType.Builder.create(StarFallEntity::new, SpawnGroup.MISC).dimensions(1, 1).disableSaving().build();
+    public static final EntityType<StarFallEntity> STARFALL = EntityType.Builder.create(StarFallEntity::new, SpawnGroup.MISC).dimensions(1, 1).build();
     public static final EntityType<DeathRayEntity> DEATHRAY = EntityType.Builder.<DeathRayEntity>create(DeathRayEntity::new, SpawnGroup.MISC).dimensions(1, 1).disableSaving().build();
 
     public static void init(){

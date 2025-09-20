@@ -1,6 +1,4 @@
 #version 150
-
-
 uniform sampler2D DiffuseSampler;
 uniform sampler2D DepthSampler;
 uniform sampler2D DiffuseDepthSampler;

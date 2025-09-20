@@ -112,46 +112,53 @@ void main() {
     vec2 notCoord = texCopy-vec2(0.5,0.5);
     vec2 notCoord2 = notCoord;
     notCoord = normalize(notCoord)*vec2(1,0.2);
-    notCoord = rotate(notCoord,STime/30);
     float texY = abs(texCopy.y-0.5)*4;
     float texX = abs(texCopy.x-0.5)*4;
-    float noise = -cnoise(vec3(notCoord.x*3,notCoord.y*3+STime/20+Offset*20,STime/10+Offset*20))/1.6+pow(texX*texX+texY*texY,0.5)*0.6;
-    notCoord = rotate(notCoord,-STime/5+pow(notCoord2.x*notCoord2.x+notCoord2.y*notCoord2.y,0.5)*2);
-    float noiser = abs(cnoise(vec3(notCoord.x*4+3,notCoord.y*4+Offset*20,Offset*20))*2)-pow(texX*texX+texY*texY,2)*0.15;
-    float noise2 = clamp(cnoise(vec3(STime/300+Offset))+1,0.9,3);
-    noise2 *= noise2;
+    notCoord = rotate(notCoord,STime/3+length(notCoord2)*2);
+    notCoord2 = rotate(notCoord,STime/3);
+    float noiser = abs(cnoise(vec3(notCoord.x*4+3,notCoord.y*4+Offset*20,Offset*20))*2)-pow(texX*texX+texY*texY,2)*0.05;
+    float noiser2 = abs(cnoise(vec3(notCoord2.x*4+Offset*20,notCoord2.y*4+3,Offset*20+10)))+pow(texX*texX+texY*texY,2)*0.05-0.5;
+    float noiser3 = abs(cnoise(vec3(-notCoord2.x*2+Offset*20,-notCoord2.y*2+3,Offset*20+10)))+pow(texX*texX+texY*texY,2)*0.03;
 
-    noise*=noise2;
-    noiser/=noise2;
     noiser*=pow(texX*texX+texY*texY,0.5)*1.4;
     color.rgb = vec3(0.5f,0.5f,0.5f);
-    if(noise>0.1){
-        float alpha = (0.1-noise)*20;
-        color.a *= alpha-fract(alpha*4)/4;
-    }
-    if(noise>0.15){
-        color.a = 0.0f;
-    }
-    if(noise>0.7&&noise<0.8){
-        float alpha = (noise-0.7)*5;
-        color.a = alpha-fract(alpha*4)/4;
-        color.rgb =vec3(1f,0.02f,0.02f);
-    }
-    if(noise2>1.5){
-        color.a *= clamp((1.7-noise2)*5,0,1);
-    }
+    color.a = 0.0f;
 
-
-    if(noiser>0.2 && color.a < 0.5){
-        color.a = clamp((1.7-noise2)*5,0,1)*(clamp((noiser-0.2)*10,0,1));
+    if(noiser>0.15 && color.a < 0.5){
+        color.a = (clamp((noiser-0.15)*10,0,1));
+        color.rgb = vec3(1.0f-noiser3/4.0,0.15f+noiser2/3.0,0.15f+noiser2/3.0);
+    }
+    if(noiser2>0.1){
+        float test =  (clamp((noiser2-0.1)*10,0,1));
+        if(color.a<test){
+            color.a = test;
+            color.rgb = vec3(0.9f,0.6f,0.2f);
+        }
 
     }
-    else  if (color.a < 0.1){
-        discard;
+    if(noiser3>0.2){
+        float test =  (clamp((noiser3-0.2)*10,0,1));
+        if(color.a<test){
+            color.a = test;
+            color.rgb = vec3(0.8f,0.27f,0.17f);
+        }
+
     }
+    if(color.a<0.5){
+        color.a = abs(cnoise(vec3(texCopy.x*2,texCopy.y*4,STime/5.0)));
+        color.rgb = vec3(0.1,0.4,1);
+    }
+
     color.a *= vertexColor.a;
-
-
+    float cola = color.a;
+    color.a = 1.0;
+    color.rgb*=cola;
+    if((texCopy.x>0.95||texCopy.x<0.05)||(texCopy.y>0.95||texCopy.y<0.05)){
+        color.rgb = vec3(1.0,1.0,1.0);
+    }
+    color.r-=fract(color.r*16.0)/16.0;
+    color.g-=fract(color.g*16.0)/16.0;
+    color.b-=fract(color.b*16.0)/16.0;
     fragColor = color;
 
 

@@ -15,6 +15,7 @@ import org.joml.Quaternionf;
 
 public class DeathRayRenderer extends EntityRenderer<DeathRayEntity> {
     private static final Identifier MONOLITH = ExecutiveOrders.id("textures/entity/fountain.png");
+    private static final Identifier MONOLITH2 = ExecutiveOrders.id("textures/entity/fountain2.png");
     private static final Identifier SPHERE_LOCATION = ExecutiveOrders.id("textures/entity/icosphere.png");
 
 
@@ -61,25 +62,26 @@ public class DeathRayRenderer extends EntityRenderer<DeathRayEntity> {
             matrices.pop();
 
         }
+        consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(MONOLITH2));
         for (int i = 0; i < 6; i++) {
             matrices.push();
             matrices.multiply(new Quaternionf().rotationYXZ(yaw2, 0, pitch));
             Vec3d pos1 = new Vec3d(2, 0, 0).rotateY((float) (Math.PI * 2 * i / 6f));
             Vec3d pos2 = new Vec3d(2, 0, 0).rotateY((float) (Math.PI * 2 * (i + 1) / 6f));
+
             MatrixStack.Entry peek = matrices.peek();
             float time2 = -(entity.getWorld().getTime() % 100) / 25f;
+            float off1 = (float) Math.sin((i)*2+time2/2*3.14f);
+            float off2 = (float) Math.sin((i+1)*2+time2/2*3.14f);
             float length = (float) entity.getTargetPos().length();
-            matrices.multiply(new Quaternionf().rotationYXZ(yaw2,0,pitch));
             for (int j = 0; j < 2; j++) {
-                float scale = (float) Math.pow((1 + j)*size*0.75f,0.5);
+                float scale = (float) Math.pow((1 + j)*size,0.5);
                 float scale2 = (float) Math.pow((2 + j)*size,0.5);
-                float a = alpha * Math.clamp(j/3f-0.3f, 0f, 1f);
-                float a2 = alpha * Math.clamp((j+1f)/3f-0.3f, 0f, 1f);
 
-                vertex(peek,consumer, (float) pos1.x*scale, (float) pos1.y+(j)*1.5f,(float) pos1.z*scale,i/3f+time2,time2*6+j*0.33f,0,1,0, 255, a);
-                vertex(peek,consumer, (float) pos1.x*scale2, (float) pos1.y+(j+1)*1.5f, (float) pos1.z*scale2,i/3f+time2,time2*6+(1f+j)*0.33f,0,1,0, 255, a2);
-                vertex(peek,consumer, (float) pos2.x*scale2, (float) pos2.y+(j+1)*1.5f, (float) pos2.z*scale2,(i+1)/3f+time2,time2*6+(1f+j)*0.33f,0,1, 0,255, a2);
-                vertex(peek,consumer,(float) pos2.x*scale, (float) pos2.y+(j)*1.5f, (float) pos2.z*scale,(i+1)/3f+time2,time2*6+j*0.33f,0,1,0,255,a);
+                vertex(peek,consumer, (float) pos1.x*scale, (float) (pos1.y+(j)*2-2)+off1,(float) pos1.z*scale,i/2f-time2,(j)*0.5f,0,1,0, 255, 1f);
+                vertex(peek,consumer, (float) pos1.x*scale2, (float) (pos1.y+(j+1f)*2-2)+off1, (float) pos1.z*scale2,i/2f-time2,(1f+j)*0.5f,0,1,0, 255, 1f);
+                vertex(peek,consumer, (float) pos2.x*scale2, (float) (pos2.y+(j+1f)*2-2)+off2, (float) pos2.z*scale2,(i+1)/2f-time2,(1f+j)*0.5f,0,1, 0,255,1f);
+                vertex(peek,consumer,(float) pos2.x*scale, (float) (pos2.y+(j)*2-2)+off2, (float) pos2.z*scale,(i+1)/2f-time2,(j)*0.5f,0,1,0,255,1f);
 
             }
             matrices.pop();

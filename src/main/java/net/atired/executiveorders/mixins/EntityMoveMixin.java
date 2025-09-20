@@ -36,20 +36,21 @@ public abstract class EntityMoveMixin {
 
     @ModifyVariable(method = "Lnet/minecraft/entity/Entity;move(Lnet/minecraft/entity/MovementType;Lnet/minecraft/util/math/Vec3d;)V", at = @At("HEAD"), argsOnly = true)
     private Vec3d moveMix(Vec3d args){
+
         if(this.getPos().length()>2030 && this.getPos().length()<2970 && this.getWorld().getDimensionEntry().getKey().isPresent() && this.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END)
         {
-
-            if(this.getPos().getY()+(args).getY()<0){
+            float miny = this.getWorld().getDimension().minY();
+            if(this.getPos().getY()+(args).getY()<miny){
                 if(((Object)this) instanceof EndermanEntity){
                     return args;
                 }
                 if(((Object)this) instanceof PlayerEntity entity && entity.isSneaking()){
-                    return args.multiply(1,0,1).add(0,-this.getPos().getY(),0);
+                    return args.multiply(1,0,1).add(0,miny-this.getPos().getY(),0);
                 }
                 getWorld().addParticle(EOParticlesInit.SKY_PARTICLE,getX(),getY(),getZ(),0,0,0);
                 double y = getVelocity().getY();
                 setVelocity(getVelocity().multiply(1,y/Math.abs(y)*1.5,1));
-                return args.add(0,-this.getPos().getY()-args.y*3,0);
+                return args.add(0,miny-this.getPos().getY()-args.y*3,0);
             }
         }
         return args;

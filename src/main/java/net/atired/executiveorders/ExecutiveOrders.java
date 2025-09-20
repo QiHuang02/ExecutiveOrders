@@ -6,6 +6,7 @@ import net.atired.executiveorders.init.worldgen.BiomeModifInit;
 import net.atired.executiveorders.init.worldgen.FeatureInit;
 import net.atired.executiveorders.items.WarpedEffigyItem;
 import net.atired.executiveorders.networking.ExecutiveOrdersNetworkingConstants;
+import net.atired.executiveorders.networking.payloads.*;
 import net.atired.executiveorders.recipe.ExecutiveOrdersRecipes;
 import net.atired.executiveorders.recipe.VitrifiedRecipe;
 import net.atired.executiveorders.recipe.VoidtouchedRecipe;
@@ -13,6 +14,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.FoodComponent;
@@ -89,7 +91,17 @@ public class ExecutiveOrders implements ModInitializer {
             itemGroup.add(EOItemsInit.WARPEDEFFIGY);
             itemGroup.add(EOItemsInit.HAUNTED_AXE);
         });
+        initMessages();
         initEvents();
+    }
+    private void initMessages(){
+        PayloadTypeRegistry.playS2C().register(ExecutePayload.ID, ExecutePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(DepthsPayload.ID, DepthsPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(MonolithPayload.ID, MonolithPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ArbalestPayload.ID, ArbalestPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(WarHornPayload.ID, WarHornPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(HauntedAxePayload.ID, HauntedAxePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(PreciseImpactPayload.ID, PreciseImpactPayload.CODEC);
     }
     private void initEvents(){
 

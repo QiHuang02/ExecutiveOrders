@@ -21,6 +21,8 @@ public class BedrockLeavesBlock extends TranslucentBlock {
         super(settings);
     }
 
+
+
     @Override
     public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
         if(!world.getBlockState(pos.add(0,-1,0)).isSolid()&&random.nextFloat()>0.8f){

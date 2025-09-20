@@ -131,6 +131,10 @@ public class StarFallEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
+        if(getRandumb() >=2.4f){
+            discard();
+            return;
+        }
         if(getRandumb()>=2f && getWorld() instanceof ServerWorld serverWorld){
 
             for(LivingEntity entity : getWorld().getEntitiesByClass(LivingEntity.class,new Box(getBlockPos()).expand(3),LivingEntity::isLiving)){
@@ -142,6 +146,7 @@ public class StarFallEntity extends Entity {
 
 
             spawnRandomItem(getPos().add(0,4,0),getVelocity().multiply(-1));
+            if(hasTrail())
             for(int samples = 0; samples < 6; samples++) {
                 Vec3d pos = getTrailPosition(samples,0);
                 serverWorld.spawnParticles(EOParticlesInit.SMALL_SKY_PARTICLE,pos.getX(),pos.getY(),pos.getZ(),samples,samples/12f,samples/12f,samples/12f,0);
@@ -193,8 +198,10 @@ public class StarFallEntity extends Entity {
     }
     @Override
     protected void readCustomDataFromNbt(NbtCompound nbt) {
-        if(nbt.getInt("shouldPerish")==1)
-            dataTracker.set(DATA_SCALE,2f);
+
+
+        dataTracker.set(DATA_SCALE,2.5f);
+        discard();
     }
 
     @Override

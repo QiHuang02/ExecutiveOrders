@@ -76,7 +76,7 @@ public class IcoSphereEntity extends Entity {
         }
         int age = this.getAge();
         if(age%100 == 0  && !getWorld().isClient()){
-            this.setDir(new Vec3d(1,0,0).rotateY((float) (Math.PI*2*getRandom().nextFloat())).rotateX((float) (Math.PI*2*(getRandom().nextFloat()-0.7f))));
+            this.setDir(new Vec3d(1,0,0).rotateY((float) (Math.PI*2*getRandom().nextFloat())).rotateX((float) (Math.PI*2*(getRandom().nextFloat()-0.5f))/50));
         }
         boolean stuff = age%100 >= 48&&age%100 <= 55;
         LivingEntity livingEntity=null;
@@ -84,12 +84,12 @@ public class IcoSphereEntity extends Entity {
         for(Entity entity : getWorld().getEntitiesByClass(Entity.class,getBoundingBox().expand(20),entity -> true)){
             float power = entity.distanceTo(this);
             if(power<5 && getWorld().isClient()&& MinecraftClient.getInstance().player == entity&&getWorld() instanceof ClientWorldAccessor accessor){
-                //accessor.executiveOrders$setIcoPower(MathHelper.clamp(accessor.executiveOrders$getIcoPower()+0.09f,0,2f));
+                accessor.executiveOrders$setIcoPower(MathHelper.clamp(accessor.executiveOrders$getIcoPower()+0.09f,0,2f));
             }
             if(power<7&&!(entity instanceof ExplosiveProjectileEntity)){
                 if(entity instanceof LivingEntity living){
                     if(power<5){
-                        //living.damage(getDamageSources().create(EODamageTypesInit.UNRAVELING),7);
+                        living.damage(getDamageSources().create(EODamageTypesInit.UNRAVELING),7);
                     }
                     if(powah>power){
                         powah = power;

@@ -35,21 +35,24 @@ public abstract class FeverExplosionMixin {
     @Inject(method = "Lnet/minecraft/world/explosion/Explosion;collectBlocksAndDamageEntities()V",at = @At("HEAD"))
     private void aStarIsBorn(CallbackInfo ci){
         Vec3d pos = getPosition();
+        if(world.getDimensionEntry().getKey().isPresent() && world.getDimensionEntry().getKey().get() == DimensionTypes.THE_END){
 
-        if(this.power>1.5 && pos.getY()<9&&pos.length()>2030 && pos.length()<2970 && world.getDimensionEntry().getKey().isPresent() && world.getDimensionEntry().getKey().get() == DimensionTypes.THE_END && world.getEntitiesByClass(IcoSphereEntity.class, new Box(pos, pos).expand(10), Entity::isRegionUnloaded).isEmpty()) {
-            if(!world.isClient() && world instanceof ServerWorld worlder){
-                IcoSphereEntity sphere = new IcoSphereEntity(EOEntityTypeInit.ICOSPHERE,world);
-                sphere.setPos(pos.x,pos.y,pos.z);
-                sphere.setVelocity(0,4.6,0);
-                world.spawnEntity(sphere);
-                spawn2Particles(worlder, EOParticlesInit.SKY_PARTICLE,pos.getX(),-0.8,pos.getZ(),1,0.1,0.1,0.1,27);
-                spawn2Particles(worlder, EOParticlesInit.SKY_PARTICLE,pos.getX(),-0.8,pos.getZ(),1,0.1,0.1,0.1,9);
-                spawn2Particles(worlder, EOParticlesInit.SMALL_SKY_PARTICLE,pos.getX(),-0.8,pos.getZ(),30,4,4,4,0);
+            if(this.power>1.5 && pos.getY()<world.getDimension().minY()+9&&pos.length()>2030 && pos.length()<2970 && world.getEntitiesByClass(IcoSphereEntity.class, new Box(pos, pos).expand(10), Entity::isRegionUnloaded).isEmpty()) {
+                if(!world.isClient() && world instanceof ServerWorld worlder){
+                    IcoSphereEntity sphere = new IcoSphereEntity(EOEntityTypeInit.ICOSPHERE,world);
+                    sphere.setPos(pos.x,pos.y,pos.z);
+                    sphere.setVelocity(0,4.6,0);
+                    world.spawnEntity(sphere);
+                    spawn2Particles(worlder, EOParticlesInit.SKY_PARTICLE,pos.getX(),-0.8,pos.getZ(),1,0.1,0.1,0.1,27);
+                    spawn2Particles(worlder, EOParticlesInit.SKY_PARTICLE,pos.getX(),-0.8,pos.getZ(),1,0.1,0.1,0.1,9);
+                    spawn2Particles(worlder, EOParticlesInit.SMALL_SKY_PARTICLE,pos.getX(),-0.8,pos.getZ(),30,4,4,4,0);
 
+
+                }
 
             }
-
         }
+
     }
     @Unique
     public <T extends ParticleEffect> int spawn2Particles(ServerWorld world, T particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ, double speed) {

@@ -28,11 +28,14 @@ import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
+import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.particle.ParticleTextureSheet;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.item.ItemModels;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.data.client.ItemModelGenerator;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
@@ -152,7 +155,12 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
 
     }
     private void initColours(){
-
+        ModelPredicateProviderRegistry.register(EOItemsInit.WARHORN,Identifier.ofVanilla("tooting"), (itemStack, clientWorld, livingEntity, seed) -> {
+            if (livingEntity == null) {
+                return 0.0F;
+            }
+            return livingEntity.isUsingItem() && livingEntity.getActiveItem() == itemStack ? 1.0F : 0.0F;
+        });
         ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex)->{
             if(pos.getY()>124){
                 float otherNoise = MathHelper.clamp((EOgetDatNoise.sampleNoise3D(pos.getX(),pos.getY(),pos.getZ(),5)+3.14f+0.8f)/2/3.14f,0f,1f);
@@ -177,7 +185,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
 
     }
     private void initpayloads(){
-        PayloadTypeRegistry.playS2C().register(ExecutePayload.ID, ExecutePayload.CODEC);
+
         ClientPlayNetworking.registerGlobalReceiver(ExecutePayload.ID, (payload, context) -> {
             Entity entity = context.client().world.getEntityById(payload.entityID());
             if(entity instanceof LivingEntityAccessor accessor)
@@ -185,7 +193,7 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
                 accessor.setExecuteTime(20);
             }
         });
-        PayloadTypeRegistry.playS2C().register(DepthsPayload.ID, DepthsPayload.CODEC);
+
         ClientPlayNetworking.registerGlobalReceiver(DepthsPayload.ID, (payload, context) -> {
             Entity entity = context.client().world.getEntityById(payload.entityID());
             if(entity instanceof DepthsLivingEntityAccessor accessor)
@@ -193,13 +201,13 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
                 accessor.executiveOrders$setRadiant(true);
             }
         });
-        PayloadTypeRegistry.playS2C().register(MonolithPayload.ID, MonolithPayload.CODEC);
+
         ClientPlayNetworking.registerGlobalReceiver(MonolithPayload.ID, (payload, context) -> {
             MonolithBlockEntity monolithBlock =  ((MonolithBlockEntity)context.client().world.getBlockEntity(new BlockPos(payload.x(),payload.y(), payload.z())));
             if(monolithBlock!=null)
                 monolithBlock.alphaticks = payload.value();
         });
-        PayloadTypeRegistry.playS2C().register(ArbalestPayload.ID, ArbalestPayload.CODEC);
+
         ClientPlayNetworking.registerGlobalReceiver(ArbalestPayload.ID, (payload, context) -> {
             Entity entity = context.client().world.getEntityById(payload.entityID());
             if(entity instanceof PersistentProjectileEntityAccessor accessor)
@@ -207,17 +215,16 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
                 accessor.setProjScale(payload.scale());
             }
         });
-        PayloadTypeRegistry.playS2C().register(WarHornPayload.ID, WarHornPayload.CODEC);
+
         ClientPlayNetworking.registerGlobalReceiver(WarHornPayload.ID, (payload, context) -> {
             if(context.player().getWorld() instanceof ClientWorldAccessor accessor){
                 accessor.executiveOrders$setRipple(payload.scale());
                 context.player().setVelocity(new Vec3d(payload.vector3f()));
             }
-            System.out.println("WOWOWOWOWOW");
         });
-        PayloadTypeRegistry.playS2C().register(HauntedAxePayload.ID, HauntedAxePayload.CODEC);
+
         ClientPlayNetworking.registerGlobalReceiver(HauntedAxePayload.ID, new HauntedAxePayload.Receiver());
-        PayloadTypeRegistry.playS2C().register(PreciseImpactPayload.ID, PreciseImpactPayload.CODEC);
+        
         ClientPlayNetworking.registerGlobalReceiver(PreciseImpactPayload.ID, new PreciseImpactPayload.Receiver());
 
     }
@@ -258,15 +265,17 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
             RenderSystem.enableDepthTest();
             RenderSystem.depthMask(false);
         });
+
         WorldRenderEvents.BEFORE_ENTITIES.register((context -> {
 
                 }));
         WorldRenderEvents.AFTER_ENTITIES.register((context -> {
-            if(MinecraftClient.getInstance().player.getPos().length()>2000&&MinecraftClient.getInstance().player.getPos().length()<3000 && (MinecraftClient.getInstance().player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END)){
+            if(context.camera()!=null&&MinecraftClient.getInstance().player!=null&&MinecraftClient.getInstance().player.getPos().length()>2000&&MinecraftClient.getInstance().player.getPos().length()<3000 && (MinecraftClient.getInstance().player.getWorld().getDimensionEntry().getKey().get() == DimensionTypes.THE_END)){
                 float time = (context.tickCounter().getTickDelta(false)+MinecraftClient.getInstance().world.getTime())/40;
                 float alpha = Math.min((float) Math.clamp((MinecraftClient.getInstance().player.getPos().length()-2000)/50,0,1), (float) Math.clamp((3000-MinecraftClient.getInstance().player.getPos().length())/50,0,1));
                 MatrixStack matrixStack = new MatrixStack();
-                for (int j = 0; j < 8; j++) {
+                PaleUniformsEvent.getFramebufferSky2().beginWrite(false);
+                for (int j = 0; j < 4; j++) {
                     matrixStack.push();
 
 
@@ -276,8 +285,11 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
                     RenderSystem.depthMask(true);
                     RenderSystem.disableBlend();
                     RenderSystem.enableDepthTest();
-                    PaleUniformsEvent.getFramebufferSky2().beginWrite(false);
+
                     Matrix4f matrix4f1 = matrixStack.peek().getPositionMatrix();
+                    if(matrix4f1==null){
+                        return;
+                    }
                     Vec3d[] array = new Vec3d[]{
                             new Vec3d(-1.5F, -4.0F, -1.5F),
                             new Vec3d(-1.5F, -4.0F, 1.5F),
@@ -322,20 +334,24 @@ public class ExecutiveOrdersClient implements ClientModInitializer {
                         array[i] = vec3d1;
                         i+=1;
                     }
+
                     VertexConsumer consumer = PaleUniformsEvent.createSkyImmediate().getBuffer(ExecutiveOrdersClient.NOSKY.getRenderLayer(RenderLayer.getEntityTranslucent(SKY_NO)));
-                    uniformSOff.set(j*4);
+                    uniformSOff.set(0);
                     consumer.vertex(matrix4f1,(float)array[0].x,(float)array[0].y,(float)array[0].z).color(1f,1f,1f,alpha).texture(0.0F, 0.0F).overlay(OverlayTexture.DEFAULT_UV).light(255).normal(-1, 0, 0);
                     consumer.vertex(matrix4f1,(float)array[1].x,(float)array[1].y,(float)array[1].z).color(1f,1f,1f,alpha).texture(0.0F, 1.0F).overlay(OverlayTexture.DEFAULT_UV).light(255).normal(-1, 0, 0);
                     consumer.vertex(matrix4f1,(float)array[2].x,(float)array[2].y,(float)array[2].z).color(1f,1f,1f,alpha).texture(1.0F, 1.0F).overlay(OverlayTexture.DEFAULT_UV).light(255).normal(-1, 0, 0);
                     consumer.vertex(matrix4f1,(float)array[3].x,(float)array[3].y,(float)array[3].z).color(1f,1f,1f,alpha).texture(1.0F, 0.0F).overlay(OverlayTexture.DEFAULT_UV).light(255).normal(-1, 0, 0);
                     matrixStack.pop();
-                    PaleUniformsEvent.createSkyImmediate().draw();
-                    MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
+
+
                     matrix4f1.translate((float) (MathHelper.sin(g * (float) Math.PI) * h * 0.5F*Math.cos(anglehor*Math.PI)), -Math.abs(MathHelper.cos(g * (float) Math.PI) * h), (float) (MathHelper.sin(g * (float) Math.PI) * h * 0.5F*Math.sin(anglehor*Math.PI)));
                     matrix4f1.rotate(RotationAxis.POSITIVE_Z.rotationDegrees(MathHelper.sin(g * (float) Math.PI) * h * 3.0F));
                     matrix4f1.rotate(RotationAxis.POSITIVE_X.rotationDegrees(Math.abs(MathHelper.cos(g * (float) Math.PI - 0.2F) * h) * 5.0F));
 
                 }
+                PaleUniformsEvent.createSkyImmediate().draw();
+                PaleUniformsEvent.getFramebufferSky2().endWrite();
+                MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
             }
 
 

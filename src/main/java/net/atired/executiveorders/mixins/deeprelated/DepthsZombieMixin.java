@@ -36,12 +36,7 @@ public  abstract class DepthsZombieMixin extends MobEntity {
 
     @Inject(method = "damage(Lnet/minecraft/entity/damage/DamageSource;F)Z",at=@At("TAIL"))
     private void depthsDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir){
-        if (!super.damage(source, amount)) {
-            return;
-        }
-        if (!(this.getWorld() instanceof ServerWorld)) {
-            return;
-        }
+
 
     }
 }

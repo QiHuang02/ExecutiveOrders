@@ -143,12 +143,18 @@ public class PaleUniformsEvent implements ShaderEffectRenderCallback {
                 }
                 ExecutiveOrdersClient.skyPower.set( Math.min((float) Math.clamp((MinecraftClient.getInstance().player.getPos().length()-2000)/40,0,1), (float) Math.clamp((3000-MinecraftClient.getInstance().player.getPos().length())/40,0,1)));
                 ExecutiveOrdersClient.skyTime.set(((MinecraftClient.getInstance().world.getTime()+v)/24000f));
-                ExecutiveOrdersClient.skyPos.set(client.cameraEntity.getLerpedPos(v).toVector3f());
+                ExecutiveOrdersClient.skyPos.set(client.cameraEntity.getLerpedPos(v).toVector3f().add(0,-MinecraftClient.getInstance().world.getDimension().minY(),0));
                 ExecutiveOrdersClient.skyRot.set(client.cameraEntity.getYaw(),offscale);
                 getFramebufferSky().beginRead();
-                ExecutiveOrdersClient.skySampler.set(getFramebufferSky().getColorAttachment());
+
+                if(offscale<0.2f){
+                    ExecutiveOrdersClient.skySampler.set(MinecraftClient.getInstance().getTextureManager().getTexture(ExecutiveOrders.id("textures/misc/bsod.png")));
+                }
+                else{
+                    ExecutiveOrdersClient.skySampler.set(getFramebufferSky().getColorAttachment());
+                }
                 getFramebufferSky2().beginRead();
-                ExecutiveOrdersClient.skySampler2.set(getFramebufferSky2().getColorAttachment());
+                ExecutiveOrdersClient.skySampler2.set(getFramebufferSky2()::getColorAttachment);
                 getFramebufferPar3().beginRead();
                 ExecutiveOrdersClient.skySampler3.set(getFramebufferPar3()::getColorAttachment);
                 ExecutiveOrdersClient.renderNoSkyProgram(v);

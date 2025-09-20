@@ -31,6 +31,7 @@ public class EOItemGroups {
 
                         entries.add(EOBlocksInit.BEDROCK_LEAVES);
                         entries.add(EOBlocksInit.SUSPICIOUS_BEDROCK);
+                        entries.add(EOItemsInit.NIGHTMARE_FUEL);
 
                     }).build());
     public static void init(){
